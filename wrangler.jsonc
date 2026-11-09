@@ -8,11 +8,22 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     // Solo /api/* pasa por el programa; el resto de la web se sirve directo.
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/admin/*"]
   },
   // Base de datos donde se guardan los mensajes del formulario.
   "d1_databases": [
     { "binding": "DB", "database_name": "northik-formularios", "database_id": "cd77a76f-5efa-4b64-a121-cae6fd0b8da7" }
   ],
+  // Aviso por correo de cada mensaje nuevo (el destino debe estar verificado en Email Routing).
+  "send_email": [
+    { "name": "EMAIL", "destination_address": "northik.admin@gmail.com" }
+  ],
+  "vars": {
+    "AVISO_PARA": "northik.admin@gmail.com",
+    "AVISO_DE": "formulario@northik.ai",
+    // Se llenan al configurar Cloudflare Access para las descargas en CSV.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  },
   "observability": { "enabled": true }
 }

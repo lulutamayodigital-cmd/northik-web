@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Cuéntanos tu proyecto · Northik AI</title>
 <meta name="description" content="Escríbenos y te respondemos en máximo un día hábil. Northik AI · Inteligencia creativa.">
 <meta name="theme-color" content="#1E1A17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="/fuentes/fuentes.css">
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;background:#1E1A17;color:#EFE8DD}
@@ -41,7 +41,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#D4A04A}
 input::placeholder,textarea::placeholder{color:#7A7064}
 .check{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;color:#CFC4B4}
 .check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:#B9512C;padding:0}
-.checks{gap:14px}
+.checks{gap:14px;border:0;margin:0;padding:0;min-width:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.req,.opt{margin:0;font-size:13px;color:#9C9184}
+.opt{margin-top:8px;letter-spacing:.08em;text-transform:uppercase;color:#D4A04A}
+.check small{color:#9C9184}
 .trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 button{font:inherit;height:54px;padding:0 26px;border:0;border-radius:10px;background:#B9512C;color:#fff;font-size:16px;font-weight:700;cursor:pointer;justify-self:start;transition:filter .2s}
 button:hover{filter:brightness(.92)} button[disabled]{opacity:.6;cursor:wait}
@@ -50,7 +54,7 @@ button:hover{filter:brightness(.92)} button[disabled]{opacity:.6;cursor:wait}
 .ok{grid-column:1/-1;display:none;flex-direction:column;gap:12px;padding:28px;border:1px solid #3D3530;border-radius:14px;background:#24201C}
 .ok h2{margin:0;font-size:26px;letter-spacing:-.02em}
 .ok p{margin:0;color:#CFC4B4;line-height:1.55}
-form.sent .f,form.sent button,form.sent .msg{display:none}
+form.sent .f,form.sent button,form.sent .msg,form.sent .req,form.sent .opt{display:none}
 form.sent .ok{display:flex}
 footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:24px;padding-bottom:28px;border-top:1px solid #3D3530;font-size:14px;color:#CFC4B4}
 @media (max-width:640px){form{grid-template-columns:1fr}button{width:100%}header.wrap{padding-top:24px;padding-bottom:16px}}
@@ -66,11 +70,10 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
   <p class="alt">¿Prefieres hablar directo? Escríbenos a <a href="mailto:hola@northik.ai">hola@northik.ai</a> o por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p>
  </div>
  <form id="contacto" action="/api/contacto" method="post" novalidate>
-  <div class="f"><label for="nombre">Nombre</label><input id="nombre" name="nombre" autocomplete="name" required maxlength="120"></div>
-  <div class="f"><label for="correo">Correo</label><input id="correo" name="correo" type="email" autocomplete="email" required maxlength="160"></div>
-  <div class="f"><label for="whatsapp">WhatsApp <small>(opcional)</small></label><input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" maxlength="40" placeholder="+57 300 000 0000"></div>
-  <div class="f"><label for="empresa">Empresa o marca <small>(opcional)</small></label><input id="empresa" name="empresa" autocomplete="organization" maxlength="160"></div>
-  <div class="f full"><label for="servicio">¿Qué te interesa?</label>
+  <p class="req full">Los campos marcados con * son obligatorios.</p>
+  <div class="f"><label for="nombre">Nombre *</label><input id="nombre" name="nombre" autocomplete="name" required maxlength="120"></div>
+  <div class="f"><label for="correo">Correo *</label><input id="correo" name="correo" type="email" autocomplete="email" required maxlength="160"></div>
+  <div class="f full"><label for="servicio">¿Qué te interesa? *</label>
    <select id="servicio" name="servicio">
     <option>No sé todavía</option>
     <option value="Strategy">Strategy · estrategia y pauta</option>
@@ -78,20 +81,30 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
     <option value="Match">Match · creadores con datos</option>
     <option value="Flow">Flow · automatizaciones</option>
    </select></div>
-  <div class="f full"><label for="mensaje">Tu mensaje</label><textarea id="mensaje" name="mensaje" required maxlength="3000" placeholder="Cuéntanos tu marca, qué quieres lograr y para cuándo."></textarea></div>
+  <div class="f full"><label for="mensaje">Cuéntanos qué necesitas *</label><textarea id="mensaje" name="mensaje" required maxlength="3000" placeholder="Tu marca, qué quieres lograr y cualquier detalle que nos ayude."></textarea></div>
+  <p class="opt full mono">Opcional · nos ayuda a responderte mejor</p>
+  <div class="f"><label for="empresa">Empresa o marca</label><input id="empresa" name="empresa" autocomplete="organization" maxlength="160"></div>
+  <div class="f"><label for="whatsapp">WhatsApp</label><input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" maxlength="40" placeholder="+57 300 000 0000"></div>
+  <div class="f full"><label for="instagram_web">Instagram o página web</label><input id="instagram_web" name="instagram_web" maxlength="200" placeholder="@tumarca o tumarca.com"></div>
+  <div class="f"><label for="plazo">¿Para cuándo?</label>
+   <select id="plazo" name="plazo"><option value="">Elige una opción</option><option>Lo antes posible</option><option>En 1 mes</option><option>En 2 a 3 meses</option><option>Solo estoy explorando</option></select></div>
+  <div class="f"><label for="presupuesto">Presupuesto aproximado</label>
+   <select id="presupuesto" name="presupuesto"><option value="">Elige una opción</option><option>Menos de $2.000.000</option><option>$2.000.000 a $5.000.000</option><option>$5.000.000 a $10.000.000</option><option>Más de $10.000.000</option><option>Prefiero no decir</option></select></div>
+  <div class="f full"><label for="como_nos_conociste">¿Cómo nos conociste?</label>
+   <select id="como_nos_conociste" name="como_nos_conociste"><option value="">Elige una opción</option><option>Instagram</option><option>Recomendación</option><option>Google</option><option>Evento o charla</option><option>Otro</option></select></div>
   <div class="trap" aria-hidden="true"><label for="sitio_web">No llenar</label><input id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off"></div>
-  <input type="hidden" name="version_documentos" value="2026-11-09">
-  <div class="f full checks">
-   <label class="check"><input type="checkbox" name="acepta_terminos" value="si" required><span>Acepto los <a href="/terminos/">Términos y condiciones</a>.</span></label>
-   <label class="check"><input type="checkbox" name="autorizacion" value="si" required><span>Autorizo el tratamiento de mis datos personales por Northik AI para responder mi consulta y enviarme una cotización, según su <a href="/datos/">Política de tratamiento de datos</a>.</span></label>
-   <label class="check"><input type="checkbox" name="mayor_edad" value="si" required><span>Soy mayor de 18 años.</span></label>
-  </div>
+  <fieldset class="f full checks"><legend class="sr">Autorizaciones</legend>
+   <label class="check"><input type="checkbox" name="terminos" value="si" required><span>Acepto los <a href="/terminos/" target="_blank" rel="noopener">Términos y condiciones</a>. *</span></label>
+   <label class="check"><input type="checkbox" name="privacidad" value="si" required><span>Autorizo el tratamiento de mis datos según la <a href="/datos/" target="_blank" rel="noopener">Política de datos</a>. *</span></label>
+   <label class="check"><input type="checkbox" name="mayor_edad" value="si" required><span>Declaro que soy mayor de 18 años. *</span></label>
+   <label class="check"><input type="checkbox" name="novedades" value="si"><span>Quiero recibir novedades de Northik por correo o WhatsApp. <small>(Opcional)</small></span></label>
+  </fieldset>
   <button type="submit">Enviar</button>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
   <div class="ok" tabindex="-1" id="ok"><h2>¡Gracias! Ya recibimos tu mensaje.</h2><p>Te escribimos en máximo 1 día hábil. Si es urgente, escríbenos por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p></div>
  </form>
 </main>
-<footer class="wrap"><span>Medellín, Colombia · Latinoamérica</span><span><a href="/datos/" style="color:inherit">Política de datos</a> · <a href="/terminos/" style="color:inherit">Términos y privacidad</a> · <span class="mono">northik.ai</span></span></footer>
+<footer class="wrap"><span>Luisa Fernanda Tamayo Zuluaga · Northik AI · Envigado, Antioquia, Colombia · <a href="mailto:hola@northik.ai" style="color:inherit">hola@northik.ai</a></span><span><a href="/terminos/" style="color:inherit">Términos</a> · <a href="/datos/" style="color:inherit">Política de datos</a> · <a href="/cookies/" style="color:inherit">Cookies</a> · <a href="/reembolsos/" style="color:inherit">Reembolsos</a></span></footer>
 <script src="/contacto/formulario.js" defer></script>
 </body>
 </html>
