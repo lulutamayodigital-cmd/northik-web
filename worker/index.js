@@ -35,13 +35,17 @@ async function contacto(request, env) {
     nombre: v("nombre"), correo: v("correo"), whatsapp: v("whatsapp"),
     empresa: v("empresa"), servicio: v("servicio"), mensaje: v("mensaje"),
   };
-  const autoriza = datos.autorizacion === "si" || datos.autorizacion === true || datos.autorizacion === "on";
+  const si = (k) => datos[k] === "si" || datos[k] === true || datos[k] === "on";
+  const autoriza = si("autorizacion"), terminos = si("acepta_terminos"), mayor = si("mayor_edad");
+  const version = String(datos.version_documentos || "").slice(0, 20);
 
   const faltan = [];
   if (!r.nombre) faltan.push("tu nombre");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.correo)) faltan.push("un correo válido");
   if (!r.mensaje) faltan.push("tu mensaje");
+  if (!terminos) faltan.push("aceptar los términos");
   if (!autoriza) faltan.push("la autorización de datos");
+  if (!mayor) faltan.push("confirmar que eres mayor de 18 años");
   if (faltan.length) return json({ ok: false, error: "Falta " + faltan.join(", ") + "." }, 400);
   if (!SERVICIOS.includes(r.servicio)) r.servicio = "No sé todavía";
 
@@ -52,20 +56,21 @@ async function contacto(request, env) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fecha TEXT NOT NULL, nombre TEXT NOT NULL, correo TEXT NOT NULL,
       whatsapp TEXT, empresa TEXT, servicio TEXT, mensaje TEXT NOT NULL,
-      autorizacion_datos TEXT NOT NULL, pais TEXT)`).run();
+      autorizacion_datos TEXT NOT NULL, acepta_terminos TEXT NOT NULL,
+      mayor_edad TEXT NOT NULL, version_documentos TEXT, pais TEXT)`).run();
   await env.DB.prepare(`INSERT INTO contactos
-      (fecha, nombre, correo, whatsapp, empresa, servicio, mensaje, autorizacion_datos, pais)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(fecha, r.nombre, r.correo, r.whatsapp, r.empresa, r.servicio, r.mensaje, "sí · " + fecha, pais)
+      (fecha, nombre, correo, whatsapp, empresa, servicio, mensaje, autorizacion_datos, acepta_terminos, mayor_edad, version_documentos, pais)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(fecha, r.nombre, r.correo, r.whatsapp, r.empresa, r.servicio, r.mensaje, "sí · " + fecha, "sí · " + fecha, "sí", version, pais)
     .run();
 
   // El aviso por correo no debe impedir que el envío quede guardado.
-  try { await avisar(env, r, fecha); } catch (e) { console.error("No se pudo enviar el aviso:", e); }
+  try { await avisar(env, r, fecha, version); } catch (e) { console.error("No se pudo enviar el aviso:", e); }
 
   return json({ ok: true });
 }
 
-async function avisar(env, r, fecha) {
+async function avisar(env, r, fecha, version) {
   if (!env.EMAIL || !env.AVISO_PARA) return;
   const de = env.AVISO_DE || "formulario@northik.ai";
   const hora = new Date(fecha).toLocaleString("es-CO", { timeZone: "America/Bogota" });
@@ -73,7 +78,7 @@ async function avisar(env, r, fecha) {
     "Nuevo mensaje desde northik.ai", "",
     "Nombre: " + r.nombre, "Correo: " + r.correo, "WhatsApp: " + (r.whatsapp || "—"),
     "Empresa o marca: " + (r.empresa || "—"), "Servicio: " + r.servicio, "Fecha: " + hora, "",
-    "Mensaje:", r.mensaje, "", "Autorizó el tratamiento de datos al enviar el formulario.",
+    "Mensaje:", r.mensaje, "", "Aceptó términos, autorizó el tratamiento de datos y confirmó ser mayor de 18 años (documentos versión " + (version || "—") + ").",
   ].join("\r\n");
   const asunto = "Nuevo contacto: " + r.nombre + " · " + r.servicio;
   const raw = [

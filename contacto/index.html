@@ -41,6 +41,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#D4A04A}
 input::placeholder,textarea::placeholder{color:#7A7064}
 .check{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;color:#CFC4B4}
 .check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:#B9512C;padding:0}
+.checks{gap:14px}
 .trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 button{font:inherit;height:54px;padding:0 26px;border:0;border-radius:10px;background:#B9512C;color:#fff;font-size:16px;font-weight:700;cursor:pointer;justify-self:start;transition:filter .2s}
 button:hover{filter:brightness(.92)} button[disabled]{opacity:.6;cursor:wait}
@@ -79,33 +80,18 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
    </select></div>
   <div class="f full"><label for="mensaje">Tu mensaje</label><textarea id="mensaje" name="mensaje" required maxlength="3000" placeholder="Cuéntanos tu marca, qué quieres lograr y para cuándo."></textarea></div>
   <div class="trap" aria-hidden="true"><label for="sitio_web">No llenar</label><input id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off"></div>
-  <div class="f full"><label class="check"><input type="checkbox" name="autorizacion" value="si" required><span>Autorizo el tratamiento de mis datos personales por Northik AI para responder mi consulta y enviarme una cotización, según su <a href="/datos/">Política de tratamiento de datos</a>.</span></label></div>
+  <input type="hidden" name="version_documentos" value="2026-11-09">
+  <div class="f full checks">
+   <label class="check"><input type="checkbox" name="acepta_terminos" value="si" required><span>Acepto los <a href="/terminos/">Términos y condiciones</a>.</span></label>
+   <label class="check"><input type="checkbox" name="autorizacion" value="si" required><span>Autorizo el tratamiento de mis datos personales por Northik AI para responder mi consulta y enviarme una cotización, según su <a href="/datos/">Política de tratamiento de datos</a>.</span></label>
+   <label class="check"><input type="checkbox" name="mayor_edad" value="si" required><span>Soy mayor de 18 años.</span></label>
+  </div>
   <button type="submit">Enviar</button>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
   <div class="ok" tabindex="-1" id="ok"><h2>¡Gracias! Ya recibimos tu mensaje.</h2><p>Te escribimos en máximo 1 día hábil. Si es urgente, escríbenos por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p></div>
  </form>
 </main>
 <footer class="wrap"><span>Medellín, Colombia · Latinoamérica</span><span><a href="/datos/" style="color:inherit">Política de datos</a> · <a href="/terminos/" style="color:inherit">Términos y privacidad</a> · <span class="mono">northik.ai</span></span></footer>
-<script>
-const f=document.getElementById('contacto'),m=document.getElementById('msg'),b=f.querySelector('button');
-f.addEventListener('submit',async e=>{
- e.preventDefault();m.className='msg';m.textContent='';
- const d=Object.fromEntries(new FormData(f));
- const falta=[];
- if(!d.nombre.trim())falta.push('tu nombre');
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.correo.trim()))falta.push('un correo válido');
- if(!d.mensaje.trim())falta.push('tu mensaje');
- if(!d.autorizacion)falta.push('marcar la autorización de datos');
- if(falta.length){m.className='msg err';m.textContent='Falta '+falta.join(', ')+'.';return}
- b.disabled=true;b.textContent='Enviando…';
- try{
-  const r=await fetch('/api/contacto',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(d)});
-  const j=await r.json().catch(()=>({}));
-  if(r.ok&&j.ok){f.classList.add('sent');document.getElementById('ok').focus()}
-  else{m.className='msg err';m.textContent=j.error||'No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos a hola@northik.ai.'}
- }catch{m.className='msg err';m.textContent='No pudimos enviar tu mensaje. Revisa tu conexión o escríbenos a hola@northik.ai.'}
- b.disabled=false;b.textContent='Enviar';
-});
-</script>
+<script src="/contacto/formulario.js" defer></script>
 </body>
 </html>
