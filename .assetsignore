@@ -1,7 +1,8 @@
-.git
-.github
+.git/
+.github/
+.wrangler/
 .assetsignore
 wrangler.jsonc
 README.md
 CNAME
-node_modules
+node_modules/
