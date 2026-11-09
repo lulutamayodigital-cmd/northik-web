@@ -2,8 +2,17 @@
   // Configuración para publicar northik.ai en Cloudflare (Workers con archivos estáticos).
   "name": "northik-web",
   "compatibility_date": "2026-10-01",
+  "main": "worker/index.js",
   "assets": {
     "directory": "./",
-    "html_handling": "auto-trailing-slash"
-  }
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    // Solo /api/* pasa por el programa; el resto de la web se sirve directo.
+    "run_worker_first": ["/api/*"]
+  },
+  // Base de datos donde se guardan los mensajes del formulario.
+  "d1_databases": [
+    { "binding": "DB", "database_name": "northik-formularios", "database_id": "cd77a76f-5efa-4b64-a121-cae6fd0b8da7" }
+  ],
+  "observability": { "enabled": true }
 }
