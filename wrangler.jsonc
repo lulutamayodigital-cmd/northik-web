@@ -1,0 +1,9 @@
+{
+  // Configuración para publicar northik.ai en Cloudflare (Workers con archivos estáticos).
+  "name": "northik-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./",
+    "html_handling": "auto-trailing-slash"
+  }
+}
