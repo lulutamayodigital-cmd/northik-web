@@ -6,3 +6,4 @@ wrangler.jsonc
 README.md
 CNAME
 node_modules/
+worker/
