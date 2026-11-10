@@ -126,47 +126,64 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
 .foot a{text-decoration:none}.foot a:hover{color:var(--arena)}
 .legal{border-top:1px solid #3a332d;margin-top:40px;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--humo)}
 
-/* hero con símbolo animado */
+/* hero: el logo se arma en 1,2 s (manual de marca, lámina Motion) */
 .hero-grid{display:flex;flex-wrap:wrap;align-items:center;gap:48px}
 .hero-text{flex:999 1 560px;min-width:0}
 .hero-art{flex:1 1 260px;display:flex;justify-content:center}
-.sym{width:min(100%,300px);height:auto;overflow:visible}
-.ring{transform-origin:606px -540px;transform-box:view-box}
+.lockup{display:flex;flex-direction:column;align-items:center;gap:28px}
+.sym{width:min(100%,260px);height:auto;overflow:visible}
+.lockup .word{width:200px;height:auto}
+.ring-draw{stroke-dasharray:100;stroke-dashoffset:0}
 @media (prefers-reduced-motion:no-preference){
- .ring{animation:in .9s cubic-bezier(.2,.7,.2,1) both}
- .dot{animation:up .7s .7s cubic-bezier(.2,.7,.2,1) both}
+ .ring-draw{animation:dibujar .6s cubic-bezier(.4,0,.2,1) both}
+ .dot-rise{animation:subir .3s .6s cubic-bezier(.2,.7,.2,1) both}
+ .lockup .word{animation:asomar .3s .9s cubic-bezier(.2,.7,.2,1) both}
 }
-@keyframes in{from{opacity:0;transform:scale(.9)}}
-@keyframes up{from{opacity:0;transform:translateY(300px)}}
+@keyframes dibujar{from{stroke-dashoffset:100}}
+@keyframes subir{from{opacity:0;transform:translateY(150px)}}
+@keyframes asomar{from{opacity:0;transform:translateY(16px)}}
 @media (max-width:760px){.hero-art{display:none}}
 
-/* ejemplo de Match */
-.match-grid{display:grid;grid-template-columns:1fr 440px;gap:64px;align-items:center}
+/* ejemplo de Match: visualización de datos (manual de marca, lámina Datos) */
+.match-grid{display:grid;grid-template-columns:1fr 480px;gap:64px;align-items:center}
 .match-grid .intro{margin-bottom:0}
-.match-grid ul.claves{margin:24px 0 0;padding-left:20px;color:var(--gris);display:flex;flex-direction:column;gap:8px}
-.ficha{background:var(--arena-clara);border:1px solid var(--piedra);border-top:8px solid var(--terracota);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:18px}
-.ficha-top{display:flex;align-items:center;gap:14px}
-.avatar{width:56px;height:56px;border-radius:50%;background:var(--terracota);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px}
-.ficha-top b{display:block;font-size:19px}
-.ficha-top span{font-size:15px;color:var(--gris)}
-.indice{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--piedra);padding-bottom:16px}
-.indice .num{font-family:var(--mono);font-size:54px;line-height:1;color:var(--terracota-p)}
-.indice .num small{font-size:22px;color:var(--gris)}
-.sello{background:var(--terracota);color:#fff;font-weight:700;font-size:15px;padding:6px 12px;border-radius:6px}
-.dim{display:flex;flex-direction:column;gap:6px}
-.dim-top{display:flex;justify-content:space-between;gap:10px;font-size:16px}
-.dim-top em{font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--humo);margin-left:6px}
-.dim-top strong{font-family:var(--mono);font-weight:500}
-.bar{height:10px;border-radius:5px;background:#e2d9cb;overflow:hidden}
-.bar i{display:block;height:100%;width:var(--v);background:var(--terracota);border-radius:5px}
-html.js .ficha .bar i{width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
-html.js .ficha.visible .bar i{width:var(--v)}
-html.js .ficha.visible .dim:nth-child(2) .bar i{transition-delay:.12s}
-html.js .ficha.visible .dim:nth-child(3) .bar i{transition-delay:.24s}
-html.js .ficha.visible .dim:nth-child(4) .bar i{transition-delay:.36s}
-@media (prefers-reduced-motion:reduce){html.js .ficha .bar i{transition:none}}
+.match-grid ul.claves{margin:24px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;color:var(--gris)}
+.claves i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:10px;vertical-align:-1px}
+.ficha{background:var(--arena-clara);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:24px}
+.gauge-row{display:flex;align-items:center;gap:24px}
+.gauge{position:relative;width:150px;flex:0 0 150px}
+.gauge svg{width:100%;height:auto;display:block;overflow:visible}
+.gauge .num{position:absolute;left:0;right:0;top:57%;transform:translateY(-50%);text-align:center;font-family:var(--mono);font-size:40px;font-weight:500}
+.g-track{stroke:#e2d9cb}
+.g-val{stroke:var(--terracota);stroke-dasharray:100;stroke-dashoffset:calc(100 - var(--v))}
+.g-dot{fill:var(--terracota);transition:fill .3s ease}
+html.js .ficha .g-dot{fill:var(--piedra)}
+html.js .ficha.encendida .g-dot{fill:var(--terracota)}
+.gauge-txt b{display:block;font-size:22px}
+.gauge-txt span{color:var(--gris);font-size:16px}
+.gauge-txt .quien{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--humo);margin-top:8px}
+.lab{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:12px}
+.comp-row{display:grid;grid-template-columns:150px 1fr 36px;gap:14px;align-items:center;font-size:16px;padding:5px 0}
+.comp-row .bar{height:12px;border-radius:4px;background:#e8e0d3;overflow:hidden}
+.comp-row .bar i{display:block;height:100%;width:var(--v);background:var(--piedra);border-radius:4px}
+.comp-row.acento{font-weight:700}
+.comp-row.acento .bar i{background:var(--terracota)}
+.comp-row strong{font-family:var(--mono);font-weight:500;text-align:right}
+html.js .ficha .comp-row .bar i{width:0;transition:width .4s cubic-bezier(.2,.7,.2,1)}
+html.js .ficha.visible .comp-row .bar i{width:var(--v)}
+html.js .ficha.visible .comp-row:nth-child(3) .bar i{transition-delay:.08s}
+html.js .ficha.visible .comp-row:nth-child(4) .bar i{transition-delay:.16s}
+html.js .ficha .g-val{stroke-dashoffset:100;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
+html.js .ficha.visible .g-val{stroke-dashoffset:calc(100 - var(--v))}
+@media (prefers-reduced-motion:reduce){html.js .ficha .comp-row .bar i,html.js .ficha .g-val{transition:none}}
+.origen{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px;color:var(--gris)}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:3px 8px;border-radius:4px}
+.chip.pub{background:var(--grafito);color:var(--arena)}
+.chip.est{border:1px dashed var(--gris);color:var(--gris)}
+.chip.rep{border:1px solid var(--gris);color:var(--gris)}
 .ficha .nota{font-size:13px;color:var(--humo)}
-@media (max-width:900px){.match-grid{grid-template-columns:1fr}.ficha{max-width:460px}}
+@media (max-width:960px){.match-grid{grid-template-columns:1fr}.ficha{max-width:520px}}
+@media (max-width:480px){.gauge-row{flex-direction:column;align-items:flex-start}.comp-row{grid-template-columns:110px 1fr 32px}}
 </style>
 </head>
 <body>
@@ -198,8 +215,15 @@ html.js .ficha.visible .dim:nth-child(4) .bar i{transition-delay:.36s}
       </div>
       <p class="firma">Datos que piensan. Ideas que se ven.</p>
       </div>
-      <div class="hero-art"><svg role="img" aria-label="Símbolo de Northik: una o abierta hacia arriba con un punto" viewBox="-20 -1582 1252 1752" class="sym"><path class="ring" d="M1172.0 -540.0C1172.0 -774.0991821289062 1029.878662109375 -975.0042724609375 827.2108154296875 -1061.14013671875L717.7778930664062 -803.332275390625C820.1859741210938 -759.8078002929688 892.0 -658.2904052734375 892.0 -540.0C892.0 -382.04656982421875 763.9534301757812 -254.0 606.0 -254.0C448.04656982421875 -254.0 320.0 -382.04656982421875 320.0 -540.0C320.0 -658.2904052734375 391.81396484375 -759.8078002929688 494.2220764160156 -803.332275390625L384.7891540527344 -1061.14013671875C182.12135314941406 -975.0042724609375 40.0 -774.0991821289062 40.0 -540.0C40.0 -227.40682983398438 293.4068298339844 26.0 606.0 26.0C918.5931396484375 26.0 1172.0 -227.40682983398438 1172.0 -540.0Z" fill="#EFE8DD"/><path class="dot" d="M606.0 -1159.0Q517.0 -1159.0 463.0 -1213.0Q409.0 -1267.0 409.0 -1356.0Q409.0 -1446.0 463.0 -1499.5Q517.0 -1553.0 606.0 -1553.0Q696.0 -1553.0 749.5 -1499.5Q803.0 -1446.0 803.0 -1356.0Q803.0 -1267.0 749.5 -1213.0Q696.0 -1159.0 606.0 -1159.0Z" fill="#B9512C"/></svg>
-</div>
+      <div class="hero-art">
+        <div class="lockup" aria-label="Logo de Northik" role="img">
+          <svg class="sym" viewBox="20 -10 260 320" aria-hidden="true">
+            <path class="ring-draw" d="M189.07 77.95 A100 100 0 1 1 110.93 77.95" fill="none" stroke="#EFE8DD" stroke-width="56" pathLength="100"/>
+            <g class="dot-rise"><rect x="128" y="-2" width="44" height="44" rx="13" fill="#D4A04A"/></g>
+          </svg>
+          <img class="word" src="/img/logo-claro.png" alt="" width="240" height="57">
+        </div>
+      </div>
     </div>
   </section>
 
@@ -245,18 +269,28 @@ html.js .ficha.visible .dim:nth-child(4) .bar i{transition-delay:.36s}
         <p class="eyebrow">Ejemplo · Northik Match</p>
         <h2>Cada creador, con su índice de ajuste</h2>
         <p>No elegimos por seguidores. Cada creador recibe un índice de 0 a 100, calculado con lo que más le importa a tu marca, y cada dato dice de dónde viene.</p>
-        <ul class="claves"><li>80 a 100: recomendado</li><li>60 a 79: con reservas</li><li>Menos de 60: descartado</li></ul>
+        <ul class="claves"><li><i style="background:var(--terracota)"></i>80 a 100: ajuste alto, recomendado</li><li><i style="background:var(--ocre)"></i>60 a 79: ajuste medio, con reservas</li><li><i style="background:var(--humo)"></i>Menos de 60: ajuste bajo, descartado</li></ul>
       </div>
       <div class="ficha" id="ficha">
-        <div class="ficha-top"><div class="avatar" aria-hidden="true">CU</div><div><b>@creadora.uno</b><span>Café y recetas · Medellín</span></div></div>
-        <div class="indice"><span class="num"><span id="indice-num">87</span><small>/100</small></span><span class="sello">Recomendada</span></div>
-        <div class="dims">
-          <div class="dim"><div class="dim-top"><span>Afinidad con el brief<em>estimado</em></span><strong>78</strong></div><div class="bar"><i style="--v:78%"></i></div></div>
-          <div class="dim"><div class="dim-top"><span>Interacción frente a su tamaño<em>estimado</em></span><strong>92</strong></div><div class="bar"><i style="--v:92%"></i></div></div>
-          <div class="dim"><div class="dim-top"><span>Público en Colombia<em>reportado</em></span><strong>81</strong></div><div class="bar"><i style="--v:81%"></i></div></div>
-          <div class="dim"><div class="dim-top"><span>Seguridad de marca<em>público</em></span><strong>95</strong></div><div class="bar"><i style="--v:95%"></i></div></div>
+        <div class="gauge-row">
+          <div class="gauge">
+            <svg viewBox="20 -10 260 320" aria-hidden="true">
+              <path class="g-track" d="M189.07 77.95 A100 100 0 1 1 110.93 77.95" fill="none" stroke-width="28" pathLength="100"/>
+              <path class="g-val" style="--v:87" d="M189.07 77.95 A100 100 0 1 1 110.93 77.95" fill="none" stroke-width="28" pathLength="100"/>
+              <rect class="g-dot" x="134" y="4" width="32" height="32" rx="9"/>
+            </svg>
+            <span class="num" id="indice-num">87</span>
+          </div>
+          <div class="gauge-txt"><b>Ajuste alto</b><span>Recomendada: el punto se enciende con 80 o más.</span><span class="quien">@creadora.uno · Café y recetas · Medellín</span></div>
         </div>
-        <p class="nota">Ejemplo ilustrativo: cuenta y datos inventados.</p>
+        <div>
+          <p class="lab">Comparar creadores · índice de ajuste</p>
+          <div class="comp-row acento"><span>@creadora.uno</span><div class="bar"><i style="--v:87%"></i></div><strong>87</strong></div>
+          <div class="comp-row"><span>@creador.dos</span><div class="bar"><i style="--v:74%"></i></div><strong>74</strong></div>
+          <div class="comp-row"><span>@creadora.tres</span><div class="bar"><i style="--v:46%"></i></div><strong>46</strong></div>
+        </div>
+        <div class="origen">Origen del dato: <span class="chip pub">PÚBLICO</span><span class="chip est">ESTIMADO</span><span class="chip rep">REPORTADO</span></div>
+        <p class="nota">Ejemplo ilustrativo: cuentas y datos inventados.</p>
       </div>
     </div>
   </section>
