@@ -26,8 +26,8 @@
     "AVISO_PARA": "northik.admin@gmail.com",
     "AVISO_DE": "formulario@northik.ai",
     // Se llenan al configurar Cloudflare Access para las descargas en CSV.
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "ACCESS_TEAM_DOMAIN": "old-river-e3fc.cloudflareaccess.com",
+    "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a"
   },
   "observability": { "enabled": true }
 }
