@@ -1,80 +1,295 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northik AI · Deja de improvisar en lo digital</title>
+<meta name="description" content="Estrategia, video con IA, creadores y automatización, decididos con tus datos y con criterio humano. Northik AI, Medellín.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Northik AI · Inteligencia creativa · Muy pronto</title>
-<meta name="description" content="Northik AI: elegimos a tus creadores con datos, producimos contenido y avatares con IA y automatizamos tu operación. En español y con criterio humano. Medellín, Latinoamérica.">
 <meta name="theme-color" content="#1E1A17">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://northik.ai/">
-<meta property="og:title" content="Northik AI · Datos que piensan. Ideas que se ven.">
-<meta property="og:description" content="Inteligencia creativa para marcas y agencias en Latinoamérica. Muy pronto.">
+<meta property="og:title" content="Northik AI · Deja de improvisar en lo digital">
+<meta property="og:description" content="Estrategia, video con IA, creadores y automatización, decididos con tus datos y con criterio humano.">
 <meta property="og:image" content="https://northik.ai/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/fuentes/fuentes.css">
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;background:#1E1A17;color:#EFE8DD}
-body{font-family:'Schibsted Grotesk',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
-.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 24px}
-header.wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:32px;padding-bottom:32px}
-.logo{width:170px;height:32px;display:block;flex:0 0 auto}
-.mono{font-family:'IBM Plex Mono',Consolas,monospace}
-a{color:#D4A04A} a:hover{color:#EFE8DD}
-a:focus-visible,.btn:focus-visible{outline:2px solid #D4A04A;outline-offset:3px;border-radius:6px}
-.ig{font-size:14px;text-decoration:none;flex:0 0 auto}
-main.wrap{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:48px;padding-top:24px;padding-bottom:56px}
-.text{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:24px}
-.kicker{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#D4A04A}
-h1{margin:0;font-size:clamp(44px,7vw,88px);font-weight:800;letter-spacing:-.045em;line-height:.98}
-h1 span{color:#D4A04A}
-.lead{margin:0;max-width:560px;font-size:clamp(17px,2vw,20px);line-height:1.5;color:#CFC4B4}
-.ctas{display:flex;flex-wrap:wrap;gap:12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 22px;border-radius:10px;font-size:16px;font-weight:700;text-decoration:none;transition:filter .2s,background .2s}
-.btn-main{background:#B9512C;color:#fff} .btn-main:hover{filter:brightness(.92);color:#fff}
-.btn-sec{border:1.5px solid #5E554C;color:#EFE8DD} .btn-sec:hover{background:#2A2521;color:#EFE8DD}
-.chips{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
-.chips li{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid #3D3530;font-size:14px}
-.chips i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.art{flex:1 1 280px;display:flex;justify-content:center}
-.sym{width:min(100%,320px);height:auto;overflow:visible}
-footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:24px;padding-bottom:28px;border-top:1px solid #3D3530;font-size:14px;color:#CFC4B4}
-@media (prefers-reduced-motion:no-preference){
- .ring{animation:in .8s cubic-bezier(.2,.7,.2,1) both}
- .dot{animation:up .6s .6s cubic-bezier(.2,.7,.2,1) both}
- .text>*{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
- .text>*:nth-child(2){animation-delay:.08s} .text>*:nth-child(3){animation-delay:.16s} .text>*:nth-child(4){animation-delay:.24s} .text>*:nth-child(5){animation-delay:.32s}
+:root{
+  --grafito:#1e1a17; --arena:#efe8dd; --arena-clara:#f7f2ea; --piedra:#cfc4b4;
+  --gris:#5e554c; --humo:#8a7f74; --terracota:#b9512c; --terracota-p:#9a4322;
+  --ocre:#d4a04a; --salvia:#7d8b74; --pizarra:#3e4c59;
+  --display:"Schibsted Grotesk",Arial,sans-serif; --mono:"IBM Plex Mono",Consolas,monospace;
 }
-@keyframes in{from{opacity:0;transform:scale(.92)}}
-@keyframes up{from{opacity:0;transform:translateY(300px)}}
-@keyframes rise{from{opacity:0;transform:translateY(16px)}}
-@media (max-width:700px){.art{display:none}header.wrap{padding-top:24px;padding-bottom:16px}.ctas .btn{flex:1 1 100%}}
-.ring{transform-origin:606px -540px;transform-box:view-box}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--arena);color:var(--grafito);font-family:var(--display);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--terracota-p);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--terracota)}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.03em;line-height:1.02;text-wrap:balance}
+h2{font-size:clamp(34px,5vw,56px)}
+h3{font-size:24px;letter-spacing:-.01em;line-height:1.15;font-weight:700}
+p{margin:0}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:17px;text-decoration:none;transition:transform .15s ease,background .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,a:focus-visible{outline:3px solid var(--ocre);outline-offset:3px}
+.btn-primary{background:var(--terracota);color:#fff}
+.btn-primary:hover{background:var(--terracota-p)}
+.btn-ghost{border:1.5px solid currentColor}
+.band{display:grid;grid-template-columns:repeat(4,1fr);height:6px}
+.band i:nth-child(1){background:var(--pizarra)}.band i:nth-child(2){background:var(--ocre)}.band i:nth-child(3){background:var(--terracota)}.band i:nth-child(4){background:var(--salvia)}
+
+/* nav */
+header.top{position:sticky;top:0;z-index:10;background:rgba(239,232,221,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(207,196,180,.6)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;height:72px}
+.nav img{height:30px;width:auto}
+.nav ul{list-style:none;display:flex;gap:28px;margin:0;padding:0;font-size:16px;font-weight:500}
+.nav ul a{text-decoration:none;color:var(--gris)}
+.nav ul a:hover{color:var(--grafito)}
+.nav .btn{min-height:44px;padding:10px 18px;font-size:15px}
+@media (max-width:860px){.nav ul{display:none}}
+
+/* hero */
+.hero{background:var(--grafito);color:var(--arena);padding:96px 0 104px}
+.hero .eyebrow{color:var(--ocre)}.hero .eyebrow::before{background:var(--ocre)}
+.hero h1{font-size:clamp(48px,9vw,112px);max-width:11ch}
+.hero .lede{font-size:clamp(19px,2.2vw,24px);color:var(--piedra);max-width:640px;margin-top:28px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:40px}
+.hero .btn-ghost{color:var(--arena)}
+.hero .firma{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--humo);margin-top:56px}
+
+/* sections */
+section{padding:96px 0}
+.intro{max-width:720px;margin-bottom:48px}
+.intro p{color:var(--gris);font-size:20px;margin-top:18px}
+
+/* servicios */
+.servicios{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.svc{background:var(--arena-clara);border-radius:18px;padding:28px 24px 30px;border-top:8px solid var(--c);display:flex;flex-direction:column;gap:14px}
+.svc .etapa{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.svc img{height:24px;width:auto;object-fit:contain;object-position:left}
+.svc .pregunta{font-size:17px;color:var(--gris);font-style:italic}
+.svc ul{margin:4px 0 0;padding-left:18px;color:var(--gris);font-size:16px;display:flex;flex-direction:column;gap:4px}
+@media (max-width:1000px){.servicios{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.servicios{grid-template-columns:1fr}}
+
+/* diferentes */
+.dif{background:var(--arena-clara)}
+.dif-grid{display:grid;grid-template-columns:1fr 360px;gap:64px;align-items:start}
+.razones{display:grid;grid-template-columns:1fr 1fr;gap:36px 40px}
+.razon{border-top:1px solid var(--piedra);padding-top:22px;display:flex;flex-direction:column;gap:10px}
+.razon p{color:var(--gris)}
+.gemelo{display:flex;flex-direction:column;gap:12px}
+.gemelo figure{margin:0;position:relative;border-radius:18px;overflow:hidden;background:var(--piedra);aspect-ratio:4/5}
+.gemelo figure img{width:100%;height:100%;object-fit:cover}
+.gemelo .tag{position:absolute;left:14px;bottom:14px;padding:4px 12px;border-radius:999px;background:rgba(30,26,23,.35);color:#fff;font-size:14px;font-weight:500}
+.gemelo figcaption,.gemelo p{font-size:15px;color:var(--gris)}
+.gemelo strong{color:var(--grafito)}
+@media (max-width:900px){.dif-grid{grid-template-columns:1fr}.gemelo{max-width:360px}}
+@media (max-width:600px){.razones{grid-template-columns:1fr}}
+
+/* pasos */
+.pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:p}
+.pasos li{counter-increment:p;display:flex;flex-direction:column;gap:10px;padding-top:20px;border-top:2px solid var(--grafito)}
+.pasos li::before{content:counter(p,decimal-leading-zero);font-family:var(--mono);font-size:28px;color:var(--terracota-p)}
+.pasos p{color:var(--gris);font-size:17px}
+@media (max-width:900px){.pasos{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.pasos{grid-template-columns:1fr}}
+
+/* compromiso */
+.comp{background:var(--grafito);color:var(--arena)}
+.comp .eyebrow{color:var(--ocre)}.comp .eyebrow::before{background:var(--ocre)}
+.comp .intro p{color:var(--piedra)}
+.garantias{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.gar{border:1px solid #4a423b;border-radius:18px;padding:28px 24px;display:flex;flex-direction:column;gap:12px}
+.gar p{color:var(--piedra)}
+@media (max-width:860px){.garantias{grid-template-columns:1fr}}
+
+/* cierre */
+.cierre{text-align:left}
+.cierre-box{background:var(--arena-clara);border-radius:24px;padding:64px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center}
+.cierre-box p{color:var(--gris);font-size:20px;margin-top:16px;max-width:560px}
+.cierre-box .ctas{display:flex;flex-direction:column;gap:12px}
+@media (max-width:800px){.cierre-box{grid-template-columns:1fr;padding:44px 28px}}
+
+footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-size:15px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px}
+.foot img{height:26px;width:auto;margin-bottom:14px}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.foot a{text-decoration:none}.foot a:hover{color:var(--arena)}
+.legal{border-top:1px solid #3a332d;margin-top:40px;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--humo)}
 </style>
 </head>
 <body>
-<header class="wrap"><svg role="img" aria-label="Northik AI" viewBox="-40 -1680 9343 1740" width="170" height="32" class="logo"><path d="M4271.0 0.0H4569.0V-525.0Q4569.0 -703.0 4630.0 -792.0Q4691.0 -881.0 4808.0 -881.0Q4905.0 -881.0 4940.0 -818.5Q4975.0 -756.0 4975.0 -623.0V0.0H5273.0V-658.0Q5273.0 -790.0 5234.0 -891.0Q5195.0 -992.0 5115.0 -1049.0Q5035.0 -1106.0 4909.0 -1106.0Q4781.0 -1106.0 4690.5 -1044.0Q4614.93505859375 -992.231689453125 4569.0 -906.3014526367188V-1390.0H4271.0ZM6102.0 0.0H6400.0V-320.0L6551.0 -470.0L6840.0 0.0H7173.0L6751.0 -676.0L7157.0 -1080.0H6817.0L6400.0 -664.0V-1390.0H6102.0ZM141.0 0.0H439.0V-495.0Q439.0 -691.0 501.5 -786.0Q564.0 -881.0 675.0 -881.0Q769.0 -881.0 807.0 -817.5Q845.0 -754.0 845.0 -639.0V0.0H1143.0V-658.0Q1143.0 -790.0 1104.0 -891.0Q1065.0 -992.0 984.5 -1049.0Q904.0 -1106.0 778.0 -1106.0Q651.0 -1106.0 561.0 -1044.5Q477.24713134765625 -987.2688598632812 429.0 -890.6351318359375V-1080.0H141.0ZM3839.0 0.0H4103.0V-218.0H3938.0Q3907.0 -218.0 3897.5 -229.5Q3888.0 -241.0 3888.0 -274.0V-862.0H4088.0V-1080.0H3888.0V-1364.0L3590.0 -1292.0V-1080.0H3436.0V-862.0H3590.0V-227.0Q3590.0 -117.0 3654.5 -58.5Q3719.0 0.0 3839.0 0.0ZM2577.0 0.0H2875.0V-454.0Q2875.0 -574.0 2903.5 -651.5Q2932.0 -729.0 2977.5 -771.5Q3023.0 -814.0 3076.5 -831.0Q3130.0 -848.0 3179.0 -848.0Q3239.0 -848.0 3304.0 -830.0L3327.0 -1084.0Q3295.0 -1096.0 3263.0 -1101.0Q3231.0 -1106.0 3200.0 -1106.0Q3090.0 -1106.0 2997.0 -1047.5Q2914.45703125 -995.5778198242188 2865.0 -895.2083129882812V-1080.0H2577.0Z" fill="#EFE8DD"/><path d="M2416.0 -540.0C2416.0 -774.0992431640625 2273.878662109375 -975.0042724609375 2071.2109375 -1061.14013671875L1961.7779541015625 -803.332275390625C2064.18603515625 -759.8078002929688 2136.0 -658.2904052734375 2136.0 -540.0C2136.0 -382.04656982421875 2007.9534912109375 -254.0 1850.0 -254.0C1692.0465087890625 -254.0 1564.0 -382.04656982421875 1564.0 -540.0C1564.0 -658.2904052734375 1635.81396484375 -759.8078002929688 1738.2220458984375 -803.332275390625L1628.7891845703125 -1061.14013671875C1426.121337890625 -975.0042724609375 1284.0 -774.0991821289062 1284.0 -540.0C1284.0 -227.40682983398438 1537.4068603515625 26.0 1850.0 26.0C2162.59326171875 26.0 2416.0 -227.40682983398438 2416.0 -540.0Z" fill="#EFE8DD"/><path d="M1850.0 -1159.0Q1761.0 -1159.0 1707.0 -1213.0Q1653.0 -1267.0 1653.0 -1356.0Q1653.0 -1446.0 1707.0 -1499.5Q1761.0 -1553.0 1850.0 -1553.0Q1940.0 -1553.0 1993.5 -1499.5Q2047.0 -1446.0 2047.0 -1356.0Q2047.0 -1267.0 1993.5 -1213.0Q1940.0 -1159.0 1850.0 -1159.0Z" fill="#D4A04A"/><path d="M5530.0 0.0V-1080.0H5828.0V0.0Z" fill="#EFE8DD"/><path d="M5679.0 -1159.0Q5590.0 -1159.0 5536.0 -1213.0Q5482.0 -1267.0 5482.0 -1356.0Q5482.0 -1446.0 5536.0 -1499.5Q5590.0 -1553.0 5679.0 -1553.0Q5769.0 -1553.0 5822.5 -1499.5Q5876.0 -1446.0 5876.0 -1356.0Q5876.0 -1267.0 5822.5 -1213.0Q5769.0 -1159.0 5679.0 -1159.0Z" fill="#EFE8DD"/><path d="M7510.75 0.0 7924.75 -1080.0H8219.5L8632.0 0.0H8383.0L8071.0 -912.0L7759.75 0.0ZM7781.5 -295.5V-480.75H8359.0V-295.5ZM8685.25 0.0V-191.25H8834.5V-888.75H8685.25V-1080.0H9215.5V-888.75H9066.25V-191.25H9215.5V0.0Z" fill="#EFE8DD"/></svg><a class="ig mono" href="https://instagram.com/northik.ia" rel="noopener">@northik.ia</a></header>
-<main class="wrap">
- <div class="text">
-  <span class="kicker mono">Muy pronto · Creative Intelligence</span>
-  <h1>Datos que piensan.<br>Ideas que se ven<span>.</span></h1>
-  <p class="lead">Elegimos a tus creadores, producimos tu contenido, automatizamos tu operación y te explicamos cada número. En español y con criterio humano.</p>
-  <div class="ctas">
-   <a class="btn btn-main" href="/contacto/">Cuéntanos tu proyecto</a>
-   <a class="btn btn-sec" href="https://instagram.com/northik.ia" rel="noopener">Síguenos en Instagram</a>
-  </div>
-  <ul class="chips" aria-label="Servicios">
-   <li><i style="background:#B9512C"></i>Northik Match</li><li><i style="background:#D4A04A"></i>Northik Motion</li>
-   <li><i style="background:#7D8B74"></i>Northik Flow</li><li><i style="background:#8A9AAB"></i>Northik Strategy</li>
-  </ul>
- </div>
- <div class="art"><svg role="img" aria-label="Símbolo de Northik: una o abierta hacia arriba con un punto" viewBox="-20 -1582 1252 1752" class="sym"><path class="ring" d="M1172.0 -540.0C1172.0 -774.0991821289062 1029.878662109375 -975.0042724609375 827.2108154296875 -1061.14013671875L717.7778930664062 -803.332275390625C820.1859741210938 -759.8078002929688 892.0 -658.2904052734375 892.0 -540.0C892.0 -382.04656982421875 763.9534301757812 -254.0 606.0 -254.0C448.04656982421875 -254.0 320.0 -382.04656982421875 320.0 -540.0C320.0 -658.2904052734375 391.81396484375 -759.8078002929688 494.2220764160156 -803.332275390625L384.7891540527344 -1061.14013671875C182.12135314941406 -975.0042724609375 40.0 -774.0991821289062 40.0 -540.0C40.0 -227.40682983398438 293.4068298339844 26.0 606.0 26.0C918.5931396484375 26.0 1172.0 -227.40682983398438 1172.0 -540.0Z" fill="#EFE8DD"/><path class="dot" d="M606.0 -1159.0Q517.0 -1159.0 463.0 -1213.0Q409.0 -1267.0 409.0 -1356.0Q409.0 -1446.0 463.0 -1499.5Q517.0 -1553.0 606.0 -1553.0Q696.0 -1553.0 749.5 -1499.5Q803.0 -1446.0 803.0 -1356.0Q803.0 -1267.0 749.5 -1213.0Q696.0 -1159.0 606.0 -1159.0Z" fill="#D4A04A"/></svg></div>
+
+<div class="band" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<header class="top">
+  <nav class="wrap nav" aria-label="Principal">
+    <a href="#inicio" aria-label="Northik AI, inicio"><img src="/img/logo.png" alt="Northik" width="125" height="30"></a>
+    <ul>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#diferentes">Por qué Northik</a></li>
+      <li><a href="#como-trabajamos">Cómo trabajamos</a></li>
+      <li><a href="#compromiso">Compromiso</a></li>
+    </ul>
+    <a class="btn btn-primary" href="https://wa.me/573054670254?text=Hola%20Northik%2C%20quiero%20contarles%20mi%20proyecto">Escríbenos</a>
+  </nav>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Northik™ AI · Medellín</p>
+      <h1>Deja de improvisar en lo digital.</h1>
+      <p class="lede">Estrategia, video con IA, creadores y automatización, decididos con tus datos y con criterio humano.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://wa.me/573054670254?text=Hola%20Northik%2C%20quiero%20contarles%20mi%20proyecto">Escríbenos por WhatsApp</a>
+        <a class="btn btn-ghost" href="#servicios">Ver los servicios</a>
+      </div>
+      <p class="firma">Datos que piensan. Ideas que se ven.</p>
+    </div>
+  </section>
+
+  <section id="servicios">
+    <div class="wrap">
+      <div class="intro">
+        <p class="eyebrow">Qué hacemos</p>
+        <h2>Cuatro servicios, un mismo camino</h2>
+        <p>Puedes empezar por cualquiera. Juntos cubren todo el camino: decides qué decir, apareces, llegas a más gente y nadie se queda sin respuesta.</p>
+      </div>
+      <div class="servicios">
+        <article class="svc" style="--c:var(--pizarra)">
+          <span class="etapa">01 · Decide</span>
+          <h3>Strategy<br>Qué decir y a quién</h3>
+          <p class="pregunta">¿Publicas, pero no te escriben ni te agendan?</p>
+          <ul><li>Diagnóstico con tus datos reales</li><li>Estrategia de contenido por trimestre</li><li>Pauta para llegar a más gente</li></ul>
+        </article>
+        <article class="svc" style="--c:var(--ocre)">
+          <span class="etapa">02 · Aparece</span>
+          <h3>Motion<br>Tu marca en video, sin grabar</h3>
+          <p class="pregunta">¿Sabes que necesitas video, pero no tienes tiempo de grabarte?</p>
+          <ul><li>Gemelo digital con tu imagen y tu voz</li><li>Influencer digital creado solo para tu marca</li><li>Pieza cinematográfica de tu producto</li></ul>
+        </article>
+        <article class="svc" style="--c:var(--terracota)">
+          <span class="etapa">03 · Amplifica</span>
+          <h3>Match<br>El creador indicado, elegido con datos</h3>
+          <p class="pregunta">¿Eliges creadores por seguidores y una buena foto?</p>
+          <ul><li>Lista corta con índice de ajuste</li><li>Primer contacto con los creadores</li><li>Medición de lo que dejó cada uno</li></ul>
+        </article>
+        <article class="svc" style="--c:var(--salvia)">
+          <span class="etapa">04 · Atiende</span>
+          <h3>Flow<br>Nadie se queda sin respuesta</h3>
+          <p class="pregunta">¿Se te quedan mensajes sin contestar cuando no alcanzas?</p>
+          <ul><li>Atención y agenda, aunque no estés</li><li>Cobros y seguimiento</li><li>Herramientas a tu nombre</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="dif" id="diferentes">
+    <div class="wrap dif-grid">
+      <div>
+        <div class="intro">
+          <p class="eyebrow">Por qué Northik</p>
+          <h2>Lo que nos hace diferentes</h2>
+        </div>
+        <div class="razones">
+          <div class="razon"><h3>Todo el camino, un solo equipo</h3><p>Estrategia, video con IA, creadores y automatización en un mismo lugar. No tienes que coordinar a tres proveedores distintos.</p></div>
+          <div class="razon"><h3>Tus datos reales, con su origen</h3><p>Decidimos con los datos de tus propias cuentas, y cada número dice si es público, estimado o reportado.</p></div>
+          <div class="razon"><h3>IA con criterio humano</h3><p>La IA produce; una estratega con 5 años de experiencia decide.</p></div>
+          <div class="razon"><h3>Procesos con ingeniería</h3><p>Cada automatización la diseña un ingeniero de procesos, no se arma con plantillas.</p></div>
+        </div>
+      </div>
+      <div class="gemelo">
+        <figure>
+          <img src="/img/gemelo-lulu.jpg" alt="Gemelo digital de Luisa Tamayo, estratega de Northik, creado con IA" width="720" height="900" loading="lazy">
+          <span class="tag">Creado con IA</span>
+        </figure>
+        <p><strong>Esta no es una foto: es un gemelo digital.</strong> Luisa Tamayo, estratega de Northik, creado con IA y con su autorización.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-trabajamos">
+    <div class="wrap">
+      <div class="intro">
+        <p class="eyebrow">Cómo trabajamos</p>
+        <h2>Así empezamos</h2>
+        <p>Sin mensualidades obligatorias: cada proyecto tiene precio cerrado, por escrito.</p>
+      </div>
+      <ol class="pasos">
+        <li><h3>Hablamos</h3><p>Nos cuentas qué necesitas por WhatsApp o en una llamada corta.</p></li>
+        <li><h3>Te enviamos la cotización</h3><p>Qué incluye, cuánto cuesta y cuándo se entrega. Precio cerrado.</p></li>
+        <li><h3>Arrancamos</h3><p>Con el 50 % de anticipo y tu brief, empezamos a trabajar.</p></li>
+        <li><h3>Entregamos y te explicamos</h3><p>Recibes el trabajo y te explicamos cada número. El saldo se paga a la entrega.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="comp" id="compromiso">
+    <div class="wrap">
+      <div class="intro">
+        <p class="eyebrow">Nuestro compromiso</p>
+        <h2>Prometemos lo que hacemos</h2>
+        <p>No prometemos ventas ni seguidores. Prometemos el trabajo, hecho con datos, y que entiendas cada resultado.</p>
+      </div>
+      <div class="garantias">
+        <div class="gar"><h3>Sabes lo que pagas</h3><p>Precio cerrado y por escrito. Si algo se paga a terceros, como la pauta o los creadores, te lo decimos desde el principio.</p></div>
+        <div class="gar"><h3>Tu imagen y tus datos se cuidan</h3><p>Ningún avatar se crea sin tu autorización escrita, y todo lo hecho con IA se identifica como tal.</p></div>
+        <div class="gar"><h3>Te quedas con lo que te entregamos</h3><p>Los videos, los informes y las herramientas que montamos quedan para ti.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cierre" id="contacto">
+    <div class="wrap">
+      <div class="cierre-box">
+        <div>
+          <h2>¿Listo para dejar de improvisar?</h2>
+          <p>Cuéntanos qué necesitas y te decimos por dónde empezar.</p>
+        </div>
+        <div class="ctas">
+          <a class="btn btn-primary" href="https://wa.me/573054670254?text=Hola%20Northik%2C%20quiero%20contarles%20mi%20proyecto">Escríbenos por WhatsApp</a>
+          <a class="btn btn-ghost" href="/contacto/">Cuéntanos tu proyecto</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
-<footer class="wrap"><span>Luisa Fernanda Tamayo Zuluaga · Northik AI · Envigado, Antioquia, Colombia · <a href="mailto:hola@northik.ai" style="color:inherit">hola@northik.ai</a></span><span><a href="/terminos/" style="color:inherit">Términos</a> · <a href="/datos/" style="color:inherit">Política de datos</a> · <a href="/cookies/" style="color:inherit">Cookies</a> · <a href="/reembolsos/" style="color:inherit">Reembolsos</a></span></footer>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <img src="/img/logo-claro.png" alt="Northik" width="109" height="26">
+        <p>Datos que piensan. Ideas que se ven.</p>
+        <p>Luisa Fernanda Tamayo Zuluaga · Northik AI<br>Envigado, Antioquia, Colombia</p>
+      </div>
+      <ul>
+        <li><a href="https://wa.me/573054670254">WhatsApp +57 305 467 0254</a></li>
+        <li><a href="mailto:hola@northik.ai">hola@northik.ai</a></li>
+        <li><a href="/contacto/">Formulario de contacto</a></li>
+        <li><a href="https://instagram.com/northik.ia" rel="noopener">Instagram @northik.ia</a></li>
+      </ul>
+      <ul>
+        <li><a href="/terminos/">Términos</a></li>
+        <li><a href="/datos/">Política de datos</a></li>
+        <li><a href="/cookies/">Cookies</a></li>
+        <li><a href="/reembolsos/">Reembolsos</a></li>
+      </ul>
+    </div>
+    <div class="legal">
+      <span>© 2026 Northik™ AI · NORTHIK, marca en proceso de registro.</span>
+      <span>Contenido identificado como «Creado con IA» cuando aplica.</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
