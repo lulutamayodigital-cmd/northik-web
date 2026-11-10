@@ -43,6 +43,7 @@ input::placeholder,textarea::placeholder{color:#7A7064}
 .check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:#B9512C;padding:0}
 .checks{gap:14px;border:0;margin:0;padding:0;min-width:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.aviso{margin:4px 0 0;font-size:13px;line-height:1.55;color:#9C9184}
 .req,.opt{margin:0;font-size:13px;color:#9C9184}
 .opt{margin-top:8px;letter-spacing:.08em;text-transform:uppercase;color:#D4A04A}
 .check small{color:#9C9184}
@@ -54,7 +55,7 @@ button:hover{filter:brightness(.92)} button[disabled]{opacity:.6;cursor:wait}
 .ok{grid-column:1/-1;display:none;flex-direction:column;gap:12px;padding:28px;border:1px solid #3D3530;border-radius:14px;background:#24201C}
 .ok h2{margin:0;font-size:26px;letter-spacing:-.02em}
 .ok p{margin:0;color:#CFC4B4;line-height:1.55}
-form.sent .f,form.sent button,form.sent .msg,form.sent .req,form.sent .opt{display:none}
+form.sent .f,form.sent button,form.sent .msg,form.sent .req,form.sent .opt,form.sent .aviso{display:none}
 form.sent .ok{display:flex}
 footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:24px;padding-bottom:28px;border-top:1px solid #3D3530;font-size:14px;color:#CFC4B4}
 @media (max-width:640px){form{grid-template-columns:1fr}button{width:100%}header.wrap{padding-top:24px;padding-bottom:16px}}
@@ -66,7 +67,7 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
  <div class="intro">
   <span class="kicker mono">Contacto</span>
   <h1>Cuéntanos tu proyecto<span>.</span></h1>
-  <p class="lead">Escríbenos qué quieres lograr y te respondemos en máximo 1 día hábil con los siguientes pasos.</p>
+  <p class="lead">Escríbenos qué quieres lograr y te respondemos en máximo 2 días hábiles con los siguientes pasos.</p>
   <p class="alt">¿Prefieres hablar directo? Escríbenos a <a href="mailto:hola@northik.ai">hola@northik.ai</a> o por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p>
  </div>
  <form id="contacto" action="/api/contacto" method="post" novalidate>
@@ -93,6 +94,7 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
   <div class="f full"><label for="como_nos_conociste">¿Cómo nos conociste?</label>
    <select id="como_nos_conociste" name="como_nos_conociste"><option value="">Elige una opción</option><option>Instagram</option><option>Recomendación</option><option>Google</option><option>Evento o charla</option><option>Otro</option></select></div>
   <div class="trap" aria-hidden="true"><label for="sitio_web">No llenar</label><input id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off"></div>
+  <p class="aviso full">Responsable: Luisa Fernanda Tamayo Zuluaga (Northik AI), Envigado, Colombia. Usaremos tus datos para responder tu solicitud y, solo si marcas la última casilla, para enviarte novedades. Puedes conocer, actualizar, corregir o pedir que borremos tus datos, y revocar tu autorización, escribiendo a <a href="mailto:hola@northik.ai">hola@northik.ai</a>. Más información en la <a href="/datos/" target="_blank" rel="noopener">Política de datos</a>.</p>
   <fieldset class="f full checks"><legend class="sr">Autorizaciones</legend>
    <label class="check"><input type="checkbox" name="terminos" value="si" required><span>Acepto los <a href="/terminos/" target="_blank" rel="noopener">Términos y condiciones</a>. *</span></label>
    <label class="check"><input type="checkbox" name="privacidad" value="si" required><span>Autorizo el tratamiento de mis datos según la <a href="/datos/" target="_blank" rel="noopener">Política de datos</a>. *</span></label>
@@ -101,7 +103,7 @@ footer.wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;p
   </fieldset>
   <button type="submit">Enviar</button>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
-  <div class="ok" tabindex="-1" id="ok"><h2>¡Gracias! Ya recibimos tu mensaje.</h2><p>Te escribimos en máximo 1 día hábil. Si es urgente, escríbenos por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p></div>
+  <div class="ok" tabindex="-1" id="ok"><h2>¡Gracias! Ya recibimos tu mensaje.</h2><p>Te escribimos en máximo 2 días hábiles. Si es urgente, escríbenos por <a href="https://wa.me/573054670254" rel="noopener">WhatsApp</a>.</p></div>
  </form>
 </main>
 <footer class="wrap"><span>Luisa Fernanda Tamayo Zuluaga · Northik AI · Envigado, Antioquia, Colombia · <a href="mailto:hola@northik.ai" style="color:inherit">hola@northik.ai</a></span><span><a href="/terminos/" style="color:inherit">Términos</a> · <a href="/datos/" style="color:inherit">Política de datos</a> · <a href="/cookies/" style="color:inherit">Cookies</a> · <a href="/reembolsos/" style="color:inherit">Reembolsos</a></span></footer>

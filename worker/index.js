@@ -13,6 +13,7 @@ const URL_TERMINOS = "https://northik.ai/terminos/";
 const URL_DATOS = "https://northik.ai/datos/";
 
 // Texto exacto de cada casilla, igual al que ve la persona en /contacto/.
+// No enviar novedades hasta tener /baja/ y la tabla bajas (Ley 2300, art. 5).
 const TEXTO_CASILLAS = {
   terminos: "Acepto los Términos y condiciones",
   privacidad: "Autorizo el tratamiento de mis datos según la Política de datos",
@@ -58,6 +59,12 @@ export default {
 // ---------- Formulario ----------
 
 async function contacto(request, env) {
+  // Límite de envíos: máximo 5 por minuto desde la misma dirección (la dirección no se guarda).
+  if (env.LIMITE_FORMULARIO) {
+    const clave = request.headers.get("cf-connecting-ip") || "sin-ip";
+    const { success } = await env.LIMITE_FORMULARIO.limit({ key: clave });
+    if (!success) return json({ ok: false, error: "Recibimos varios envíos seguidos. Espera un minuto e intenta de nuevo." }, 429);
+  }
   const tipo = request.headers.get("content-type") || "";
   if (!tipo.includes("application/json")) return json({ ok: false, error: ERROR_GENERAL }, 415);
   if (Number(request.headers.get("content-length") || 0) > 20000) return json({ ok: false, error: ERROR_GENERAL }, 413);
