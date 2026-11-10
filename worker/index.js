@@ -35,6 +35,11 @@ const PERMITIDOS = new Set([...Object.keys(TEXTOS), ...Object.keys(OPCIONES), ..
 const ERROR_GENERAL = "No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos a hola@northik.ai.";
 
 export default {
+  // Cada mes (día 1): borra a los interesados que llevan más de 24 meses sin escribir (Política de datos).
+  async scheduled(evento, env, ctx) {
+    ctx.waitUntil(borrarInteresadosVencidos(env));
+  },
+
   async fetch(request, env) {
     const url = new URL(request.url);
     try {
@@ -123,6 +128,24 @@ async function contacto(request, env) {
   return json({ ok: true });
 }
 
+// ---------- Conservación: borrado a los 24 meses ----------
+
+// Borra los mensajes de quien lleva más de 24 meses sin escribir (cuenta su último mensaje).
+// El registro de aceptaciones NO se borra: es la prueba ante la SIC. Queda una línea sin datos personales.
+async function borrarInteresadosVencidos(env, ahora = new Date()) {
+  await prepararTablas(env);
+  const limite = new Date(ahora);
+  limite.setUTCMonth(limite.getUTCMonth() - 24);
+  const r = await env.DB.prepare(`DELETE FROM contactos WHERE lower(correo) IN (
+      SELECT lower(correo) FROM contactos GROUP BY lower(correo) HAVING max(fecha_hora) < ?)`)
+    .bind(limite.toISOString()).run();
+  const borrados = r.meta?.changes ?? 0;
+  await env.DB.prepare(`INSERT INTO borrados_automaticos (fecha, limite, mensajes_borrados) VALUES (?, ?, ?)`)
+    .bind(ahora.toISOString(), limite.toISOString(), borrados).run();
+  console.log(`Borrado mensual: ${borrados} mensajes anteriores a ${limite.toISOString()}`);
+  return borrados;
+}
+
 // Quita etiquetas HTML y caracteres de control; recorta espacios.
 function limpiar(v) {
   if (v === undefined || v === null) return "";
@@ -149,6 +172,9 @@ async function prepararTablas(env) {
     env.DB.prepare(`CREATE TRIGGER IF NOT EXISTS aceptaciones_sin_cambios BEFORE UPDATE ON aceptaciones
       BEGIN SELECT RAISE(ABORT, 'El registro de aceptaciones no se puede editar'); END`),
     // Solicitudes de borrado: se borran las respuestas y queda la nota de quién lo pidió y cuándo.
+    // Constancia de cada borrado mensual automático (sin datos personales).
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS borrados_automaticos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, fecha TEXT NOT NULL, limite TEXT NOT NULL, mensajes_borrados INTEGER NOT NULL)`),
     env.DB.prepare(`CREATE TABLE IF NOT EXISTS solicitudes_borrado (
       id INTEGER PRIMARY KEY AUTOINCREMENT, correo TEXT NOT NULL, fecha_solicitud TEXT NOT NULL,
       fecha_borrado TEXT, nota TEXT)`),

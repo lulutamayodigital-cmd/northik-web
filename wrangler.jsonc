@@ -29,5 +29,7 @@
     "ACCESS_TEAM_DOMAIN": "old-river-e3fc.cloudflareaccess.com",
     "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a"
   },
+  // Borrado mensual de interesados con más de 24 meses sin escribir: día 1 a las 3:00 a. m. de Colombia.
+  "triggers": { "crons": ["0 8 1 * *"] },
   "observability": { "enabled": true }
 }
