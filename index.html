@@ -37,7 +37,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.03em;line-height:1.02;text-wr
 h2{font-size:clamp(34px,5vw,56px)}
 h3{font-size:24px;letter-spacing:-.01em;line-height:1.15;font-weight:700}
 p{margin:0}
-.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:17px;text-decoration:none;transition:transform .15s ease,background .15s ease}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:14px 24px;border-radius:6px;font-weight:700;font-size:17px;text-decoration:none;transition:transform .15s ease,background .15s ease}
 .btn:hover{transform:translateY(-2px)}
 .btn:focus-visible,a:focus-visible{outline:3px solid var(--ocre);outline-offset:3px}
 .btn-primary{background:var(--terracota);color:#fff}
@@ -49,7 +49,7 @@ p{margin:0}
 /* nav */
 header.top{position:sticky;top:0;z-index:10;background:rgba(239,232,221,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(207,196,180,.6)}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:20px;height:72px}
-.nav img{height:30px;width:auto}
+.nav img{height:28px;width:auto}
 .nav ul{list-style:none;display:flex;gap:28px;margin:0;padding:0;font-size:16px;font-weight:500}
 .nav ul a{text-decoration:none;color:var(--gris)}
 .nav ul a:hover{color:var(--grafito)}
@@ -72,7 +72,7 @@ section{padding:96px 0}
 
 /* servicios */
 .servicios{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.svc{background:var(--arena-clara);border-radius:18px;padding:28px 24px 30px;border-top:8px solid var(--c);display:flex;flex-direction:column;gap:14px}
+.svc{background:var(--arena-clara);border:1px solid var(--piedra);border-radius:12px;padding:28px 24px 30px;border-top:8px solid var(--c);display:flex;flex-direction:column;gap:14px}
 .svc .etapa{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
 .svc img{height:24px;width:auto;object-fit:contain;object-position:left}
 .svc .pregunta{font-size:17px;color:var(--gris);font-style:italic}
@@ -87,7 +87,7 @@ section{padding:96px 0}
 .razon{border-top:1px solid var(--piedra);padding-top:22px;display:flex;flex-direction:column;gap:10px}
 .razon p{color:var(--gris)}
 .gemelo{display:flex;flex-direction:column;gap:12px}
-.gemelo figure{margin:0;position:relative;border-radius:18px;overflow:hidden;background:var(--piedra);aspect-ratio:4/5}
+.gemelo figure{margin:0;position:relative;border-radius:12px;overflow:hidden;background:var(--piedra);aspect-ratio:4/5}
 .gemelo figure img{width:100%;height:100%;object-fit:cover}
 .gemelo .tag{position:absolute;left:14px;bottom:14px;padding:4px 12px;border-radius:999px;background:rgba(30,26,23,.35);color:#fff;font-size:14px;font-weight:500}
 .gemelo figcaption,.gemelo p{font-size:15px;color:var(--gris)}
@@ -108,13 +108,13 @@ section{padding:96px 0}
 .comp .eyebrow{color:var(--ocre)}.comp .eyebrow::before{background:var(--ocre)}
 .comp .intro p{color:var(--piedra)}
 .garantias{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.gar{border:1px solid #4a423b;border-radius:18px;padding:28px 24px;display:flex;flex-direction:column;gap:12px}
+.gar{border:1px solid #4a423b;border-radius:12px;padding:28px 24px;display:flex;flex-direction:column;gap:12px}
 .gar p{color:var(--piedra)}
 @media (max-width:860px){.garantias{grid-template-columns:1fr}}
 
 /* cierre */
 .cierre{text-align:left}
-.cierre-box{background:var(--arena-clara);border-radius:24px;padding:64px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center}
+.cierre-box{background:var(--arena-clara);border:1px solid var(--piedra);border-radius:12px;padding:64px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center}
 .cierre-box p{color:var(--gris);font-size:20px;margin-top:16px;max-width:560px}
 .cierre-box .ctas{display:flex;flex-direction:column;gap:12px}
 @media (max-width:800px){.cierre-box{grid-template-columns:1fr;padding:44px 28px}}
@@ -149,7 +149,7 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
 .match-grid .intro{margin-bottom:0}
 .match-grid ul.claves{margin:24px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;color:var(--gris)}
 .claves i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:10px;vertical-align:-1px}
-.ficha{background:var(--arena-clara);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:24px}
+.ficha{background:var(--arena-clara);border:1px solid var(--piedra);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:24px}
 .gauge-row{display:flex;align-items:center;gap:24px}
 .gauge{position:relative;width:150px;flex:0 0 150px}
 .gauge svg{width:100%;height:auto;display:block;overflow:visible}
@@ -191,7 +191,7 @@ html.js .ficha.visible .g-val{stroke-dashoffset:calc(100 - var(--v))}
 <div class="band" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <header class="top">
   <nav class="wrap nav" aria-label="Principal">
-    <a href="#inicio" aria-label="Northik AI, inicio"><img src="/img/logo.png" alt="Northik" width="125" height="30"></a>
+    <a href="#inicio" aria-label="Northik AI, inicio"><img src="/img/logo-ai.png" alt="Northik AI" width="161" height="30"></a>
     <ul>
       <li><a href="#servicios">Servicios</a></li>
       <li><a href="#diferentes">Por qué Northik</a></li>
@@ -370,7 +370,7 @@ html.js .ficha.visible .g-val{stroke-dashoffset:calc(100 - var(--v))}
   <div class="wrap">
     <div class="foot">
       <div>
-        <img src="/img/logo-claro.png" alt="Northik" width="109" height="26">
+        <img src="/img/logo-ai-claro.png" alt="Northik AI" width="140" height="26">
         <p>Datos que piensan. Ideas que se ven.</p>
         <p>Luisa Fernanda Tamayo Zuluaga · Northik AI<br>Envigado, Antioquia, Colombia</p>
       </div>
