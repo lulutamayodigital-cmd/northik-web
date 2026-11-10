@@ -125,6 +125,48 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
 .foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .foot a{text-decoration:none}.foot a:hover{color:var(--arena)}
 .legal{border-top:1px solid #3a332d;margin-top:40px;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--humo)}
+
+/* hero con símbolo animado */
+.hero-grid{display:flex;flex-wrap:wrap;align-items:center;gap:48px}
+.hero-text{flex:999 1 560px;min-width:0}
+.hero-art{flex:1 1 260px;display:flex;justify-content:center}
+.sym{width:min(100%,300px);height:auto;overflow:visible}
+.ring{transform-origin:606px -540px;transform-box:view-box}
+@media (prefers-reduced-motion:no-preference){
+ .ring{animation:in .9s cubic-bezier(.2,.7,.2,1) both}
+ .dot{animation:up .7s .7s cubic-bezier(.2,.7,.2,1) both}
+}
+@keyframes in{from{opacity:0;transform:scale(.9)}}
+@keyframes up{from{opacity:0;transform:translateY(300px)}}
+@media (max-width:760px){.hero-art{display:none}}
+
+/* ejemplo de Match */
+.match-grid{display:grid;grid-template-columns:1fr 440px;gap:64px;align-items:center}
+.match-grid .intro{margin-bottom:0}
+.match-grid ul.claves{margin:24px 0 0;padding-left:20px;color:var(--gris);display:flex;flex-direction:column;gap:8px}
+.ficha{background:var(--arena-clara);border:1px solid var(--piedra);border-top:8px solid var(--terracota);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:18px}
+.ficha-top{display:flex;align-items:center;gap:14px}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--terracota);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px}
+.ficha-top b{display:block;font-size:19px}
+.ficha-top span{font-size:15px;color:var(--gris)}
+.indice{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--piedra);padding-bottom:16px}
+.indice .num{font-family:var(--mono);font-size:54px;line-height:1;color:var(--terracota-p)}
+.indice .num small{font-size:22px;color:var(--gris)}
+.sello{background:var(--terracota);color:#fff;font-weight:700;font-size:15px;padding:6px 12px;border-radius:6px}
+.dim{display:flex;flex-direction:column;gap:6px}
+.dim-top{display:flex;justify-content:space-between;gap:10px;font-size:16px}
+.dim-top em{font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--humo);margin-left:6px}
+.dim-top strong{font-family:var(--mono);font-weight:500}
+.bar{height:10px;border-radius:5px;background:#e2d9cb;overflow:hidden}
+.bar i{display:block;height:100%;width:var(--v);background:var(--terracota);border-radius:5px}
+html.js .ficha .bar i{width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+html.js .ficha.visible .bar i{width:var(--v)}
+html.js .ficha.visible .dim:nth-child(2) .bar i{transition-delay:.12s}
+html.js .ficha.visible .dim:nth-child(3) .bar i{transition-delay:.24s}
+html.js .ficha.visible .dim:nth-child(4) .bar i{transition-delay:.36s}
+@media (prefers-reduced-motion:reduce){html.js .ficha .bar i{transition:none}}
+.ficha .nota{font-size:13px;color:var(--humo)}
+@media (max-width:900px){.match-grid{grid-template-columns:1fr}.ficha{max-width:460px}}
 </style>
 </head>
 <body>
@@ -145,7 +187,8 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
 
 <main id="inicio">
   <section class="hero">
-    <div class="wrap">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
       <p class="eyebrow">Northik™ AI · Medellín</p>
       <h1>Deja de improvisar en lo digital.</h1>
       <p class="lede">Estrategia, video con IA, creadores y automatización, decididos con tus datos y con criterio humano.</p>
@@ -154,6 +197,9 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
         <a class="btn btn-ghost" href="#servicios">Ver los servicios</a>
       </div>
       <p class="firma">Datos que piensan. Ideas que se ven.</p>
+      </div>
+      <div class="hero-art"><svg role="img" aria-label="Símbolo de Northik: una o abierta hacia arriba con un punto" viewBox="-20 -1582 1252 1752" class="sym"><path class="ring" d="M1172.0 -540.0C1172.0 -774.0991821289062 1029.878662109375 -975.0042724609375 827.2108154296875 -1061.14013671875L717.7778930664062 -803.332275390625C820.1859741210938 -759.8078002929688 892.0 -658.2904052734375 892.0 -540.0C892.0 -382.04656982421875 763.9534301757812 -254.0 606.0 -254.0C448.04656982421875 -254.0 320.0 -382.04656982421875 320.0 -540.0C320.0 -658.2904052734375 391.81396484375 -759.8078002929688 494.2220764160156 -803.332275390625L384.7891540527344 -1061.14013671875C182.12135314941406 -975.0042724609375 40.0 -774.0991821289062 40.0 -540.0C40.0 -227.40682983398438 293.4068298339844 26.0 606.0 26.0C918.5931396484375 26.0 1172.0 -227.40682983398438 1172.0 -540.0Z" fill="#EFE8DD"/><path class="dot" d="M606.0 -1159.0Q517.0 -1159.0 463.0 -1213.0Q409.0 -1267.0 409.0 -1356.0Q409.0 -1446.0 463.0 -1499.5Q517.0 -1553.0 606.0 -1553.0Q696.0 -1553.0 749.5 -1499.5Q803.0 -1446.0 803.0 -1356.0Q803.0 -1267.0 749.5 -1213.0Q696.0 -1159.0 606.0 -1159.0Z" fill="#B9512C"/></svg>
+</div>
     </div>
   </section>
 
@@ -189,6 +235,28 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
           <p class="pregunta">¿Se te quedan mensajes sin contestar cuando no alcanzas?</p>
           <ul><li>Atención y agenda, aunque no estés</li><li>Cobros y seguimiento</li><li>Herramientas a tu nombre</li></ul>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="ejemplo-match">
+    <div class="wrap match-grid">
+      <div class="intro">
+        <p class="eyebrow">Ejemplo · Northik Match</p>
+        <h2>Cada creador, con su índice de ajuste</h2>
+        <p>No elegimos por seguidores. Cada creador recibe un índice de 0 a 100, calculado con lo que más le importa a tu marca, y cada dato dice de dónde viene.</p>
+        <ul class="claves"><li>80 a 100: recomendado</li><li>60 a 79: con reservas</li><li>Menos de 60: descartado</li></ul>
+      </div>
+      <div class="ficha" id="ficha">
+        <div class="ficha-top"><div class="avatar" aria-hidden="true">CU</div><div><b>@creadora.uno</b><span>Café y recetas · Medellín</span></div></div>
+        <div class="indice"><span class="num"><span id="indice-num">87</span><small>/100</small></span><span class="sello">Recomendada</span></div>
+        <div class="dims">
+          <div class="dim"><div class="dim-top"><span>Afinidad con el brief<em>estimado</em></span><strong>78</strong></div><div class="bar"><i style="--v:78%"></i></div></div>
+          <div class="dim"><div class="dim-top"><span>Interacción frente a su tamaño<em>estimado</em></span><strong>92</strong></div><div class="bar"><i style="--v:92%"></i></div></div>
+          <div class="dim"><div class="dim-top"><span>Público en Colombia<em>reportado</em></span><strong>81</strong></div><div class="bar"><i style="--v:81%"></i></div></div>
+          <div class="dim"><div class="dim-top"><span>Seguridad de marca<em>público</em></span><strong>95</strong></div><div class="bar"><i style="--v:95%"></i></div></div>
+        </div>
+        <p class="nota">Ejemplo ilustrativo: cuenta y datos inventados.</p>
       </div>
     </div>
   </section>
@@ -291,5 +359,6 @@ footer{background:var(--grafito);color:var(--piedra);padding:56px 0 40px;font-si
     </div>
   </div>
 </footer>
+<script src="/js/web.js" defer></script>
 </body>
 </html>
