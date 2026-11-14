@@ -10,7 +10,7 @@ import { EmailMessage } from "cloudflare:email";
 import { horarios, reservar } from "./agenda.js";
 
 // Súbela cada vez que cambien los Términos o la Política de datos.
-const VERSION_DOCUMENTOS = "2026-11-09";
+const VERSION_DOCUMENTOS = "2026-11-13";
 const MEDIO = "Formulario web northik.ai";
 const URL_TERMINOS = "https://northik.ai/terminos/";
 const URL_DATOS = "https://northik.ai/datos/";
