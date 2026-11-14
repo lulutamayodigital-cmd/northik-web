@@ -31,4 +31,8 @@ Para probar en el computador: `npx wrangler dev` (abre http://localhost:8787).
   ```
   El ID de cliente (`GOOGLE_CLIENT_ID`) va en `vars` de `wrangler.jsonc` porque no es secreto.
 - Para obtener el refresh token (una sola vez, con la cuenta northik.admin@gmail.com): `node scripts/token-google.mjs`.
-- Las citas no se guardan en D1: solo existen como eventos en Google Calendar.
+- Cada reserva crea el evento en Google Calendar (con la marca privada `creadoPor=northik-agenda`) y agrega una fila a la hoja privada «Northik · Agenda», pestaña «Citas» (ID en `AGENDA_SHEET_ID`). Si la hoja falla, la cita igual se crea y llega un aviso al correo de avisos.
+- El cron mensual (día 1) borra las filas y los eventos marcados de /agenda con más de 24 meses.
+- En Google Cloud deben estar activas las APIs de Calendar y Sheets. Permisos del token: `calendar.events`, `calendar.freebusy` y `spreadsheets`.
+- Vuelve a correr `node scripts/token-google.mjs` si cambias el client secret, si quitas el permiso de la app en Google o si cambian los permisos que pide.
+- Las citas no se guardan en D1.

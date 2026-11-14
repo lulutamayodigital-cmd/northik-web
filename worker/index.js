@@ -7,10 +7,10 @@
 // - /admin/aceptaciones.csv y /admin/contactos.csv: descargas protegidas con Cloudflare Access.
 // - Todo lo demás: páginas estáticas del sitio.
 import { EmailMessage } from "cloudflare:email";
-import { horarios, reservar } from "./agenda.js";
+import { horarios, reservar, borrarAgendaVencida } from "./agenda.js";
 
 // Súbela cada vez que cambien los Términos o la Política de datos.
-const VERSION_DOCUMENTOS = "2026-11-13";
+const VERSION_DOCUMENTOS = "2026-11-13.2";
 const MEDIO = "Formulario web northik.ai";
 const URL_TERMINOS = "https://northik.ai/terminos/";
 const URL_DATOS = "https://northik.ai/datos/";
@@ -41,9 +41,11 @@ export default {
   // Cada mes (día 1): borra a los interesados que llevan más de 24 meses sin escribir (Política de datos).
   async scheduled(evento, env, ctx) {
     ctx.waitUntil(borrarInteresadosVencidos(env));
+    // Agenda: filas de la hoja y eventos creados por /agenda con más de 24 meses.
+    ctx.waitUntil(borrarAgendaVencida(env));
   },
 
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     try {
       if (url.pathname === "/api/contacto") {
@@ -56,7 +58,7 @@ export default {
       }
       if (url.pathname === "/api/agenda/reservar") {
         if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
-        return await reservar(request, env, json);
+        return await reservar(request, env, ctx, json);
       }
       if (url.pathname === "/admin/aceptaciones.csv" || url.pathname === "/admin/contactos.csv") {
         return await exportar(request, env, url.pathname.includes("aceptaciones") ? "aceptaciones" : "contactos");

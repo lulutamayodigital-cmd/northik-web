@@ -27,6 +27,17 @@ export const CONFIG = {
 
   sinCitasEnFestivosDeColombia: true,
 
+  // Hoja privada en el Drive de northik.admin (su ID va en AGENDA_SHEET_ID, wrangler.jsonc).
+  hoja: {
+    nombre: 'Northik · Agenda',
+    pestana: 'Citas',
+    columnas: ['Fecha de reserva', 'Fecha de la cita', 'Hora', 'Nombre', 'Correo', 'WhatsApp',
+      'Qué quiere lograr', 'Mensaje', 'Origen', 'ID del evento'],
+  },
+
+  // El borrado mensual elimina filas y eventos de /agenda con más de estos meses.
+  conservacionMeses: 24,
+
   whatsapp:
     'https://wa.me/573054670254?text=Hola%2C%20quiero%20agendar%20la%20llamada%20de%2020%20minutos',
 };

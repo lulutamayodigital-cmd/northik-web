@@ -1,4 +1,5 @@
-// Obtiene el refresh token de Google Calendar (una sola vez) y lo guarda como secreto de Cloudflare.
+// Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare.
+// Si todavía no existe, crea la hoja privada «Northik · Agenda» y anota su ID en wrangler.jsonc.
 // Uso:  node scripts/token-google.mjs
 // - Inicia sesión con northik.admin@gmail.com cuando se abra Google.
 // - El token nunca se muestra ni se escribe en disco: va directo a `wrangler secret put`.
@@ -15,7 +16,32 @@ const REDIRECCION = `http://127.0.0.1:${PUERTO}/callback`;
 const ALCANCES = [
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/calendar.freebusy",
+  // Solo hojas de cálculo (no da acceso al resto de archivos del Drive).
+  "https://www.googleapis.com/auth/spreadsheets",
 ].join(" ");
+
+const COLUMNAS = ["Fecha de reserva", "Fecha de la cita", "Hora", "Nombre", "Correo", "WhatsApp",
+  "Qué quiere lograr", "Mensaje", "Origen", "ID del evento"];
+
+// Crea la hoja privada (no se comparte con nadie) con la pestaña «Citas» y sus títulos.
+async function crearHoja(accessToken) {
+  const r = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
+    method: "POST",
+    headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
+    body: JSON.stringify({
+      properties: { title: "Northik · Agenda", locale: "es_CO", timeZone: "America/Bogota" },
+      sheets: [{
+        properties: { title: "Citas", gridProperties: { frozenRowCount: 1, columnCount: COLUMNAS.length } },
+        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: COLUMNAS.map((c) => ({
+          userEnteredValue: { stringValue: c }, userEnteredFormat: { textFormat: { bold: true } },
+        })) }] }],
+      }],
+    }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error("No se pudo crear la hoja: " + (j.error?.message || r.status));
+  return j.spreadsheetId;
+}
 
 const config = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
 const clientId = (config.match(/"GOOGLE_CLIENT_ID":\s*"([^"]*)"/) || [])[1];
@@ -41,6 +67,10 @@ function guardarSecreto(nombre, valor) {
 }
 
 const clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
+if (!/^GOCSPX-[A-Za-z0-9_-]{20,}$/.test(clientSecret)) {
+  console.error(`Eso no parece un client secret (debe empezar por GOCSPX-; recibí ${clientSecret.length} caracteres). Vuelve a copiarlo.`);
+  process.exit(1);
+}
 const estado = crypto.randomBytes(16).toString("hex");
 const verificador = crypto.randomBytes(32).toString("base64url");
 const reto = crypto.createHash("sha256").update(verificador).digest("base64url");
@@ -74,6 +104,16 @@ const servidor = http.createServer(async (req, res) => {
     });
     const j = await r.json();
     if (!j.refresh_token) throw new Error(`Google no devolvió refresh token (${j.error || r.status})`);
+    if (!(j.scope || "").includes("spreadsheets") || !(j.scope || "").includes("calendar.events")) {
+      throw new Error("Falta algún permiso. Vuelve a correr el script y marca todas las casillas en Google.");
+    }
+    const actual = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
+    if (/"AGENDA_SHEET_ID":\s*""/.test(actual)) {
+      const id = await crearHoja(j.access_token);
+      fs.writeFileSync(new URL("../wrangler.jsonc", import.meta.url),
+        actual.replace(/"AGENDA_SHEET_ID":\s*""/, `"AGENDA_SHEET_ID": "${id}"`));
+      console.log("Hoja «Northik · Agenda» creada (privada). Su ID quedó en wrangler.jsonc.");
+    }
     console.log("Guardando secretos en Cloudflare…");
     await guardarSecreto("GOOGLE_CLIENT_SECRET", clientSecret);
     await guardarSecreto("GOOGLE_REFRESH_TOKEN", j.refresh_token);
