@@ -27,7 +27,10 @@
     "AVISO_DE": "formulario@northik.ai",
     // Se llenan al configurar Cloudflare Access para las descargas en CSV.
     "ACCESS_TEAM_DOMAIN": "old-river-e3fc.cloudflareaccess.com",
-    "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a"
+    "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a",
+    // Agenda: ID del cliente OAuth de Google (no es secreto). El client secret y el refresh token
+    // van como secretos: npx wrangler secret put GOOGLE_CLIENT_SECRET / GOOGLE_REFRESH_TOKEN
+    "GOOGLE_CLIENT_ID": "990715747261-cb80ahirg2o98pfftsr7a2a8psofsn31.apps.googleusercontent.com"
   },
   // Borrado mensual de interesados con más de 24 meses sin escribir: día 1 a las 3:00 a. m. de Colombia.
   "triggers": { "crons": ["0 8 1 * *"] },

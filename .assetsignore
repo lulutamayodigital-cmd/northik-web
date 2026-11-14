@@ -7,3 +7,7 @@ README.md
 CNAME
 node_modules/
 worker/
+scripts/
+.dev.vars
+.gitignore
+.playwright-mcp/

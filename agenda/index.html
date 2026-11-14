@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Agenda tu llamada de 20 minutos · Northik AI</title>
+<meta name="description" content="Cuéntanos qué quieres lograr y te decimos por dónde empezar. Sin costo, por Google Meet.">
+<meta name="theme-color" content="#1E1A17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fuentes/fuentes.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#1E1A17;color:#EFE8DD}
+body{font-family:'Schibsted Grotesk',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+header.wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:24px;padding-bottom:16px}
+.logo{width:150px;height:28px;display:block}
+.mono{font-family:'IBM Plex Mono',Consolas,monospace}
+a{color:#D4A04A} a:hover{color:#EFE8DD}
+a:focus-visible,button:focus-visible,input:focus-visible+span,.chip:focus-visible{outline:2px solid #D4A04A;outline-offset:3px;border-radius:6px}
+.back{font-size:14px;text-decoration:none;background:none;border:0;padding:0;color:#D4A04A;cursor:pointer;font-family:'IBM Plex Mono',Consolas,monospace}
+.back:hover{color:#EFE8DD}
+.intro .back{align-self:flex-start;margin-bottom:6px}
+main.wrap{flex:1;display:flex;flex-direction:column;gap:28px;padding-top:8px;padding-bottom:56px}
+.paso{display:flex;flex-direction:column;gap:28px}
+.paso[hidden]{display:none!important}
+.intro{display:flex;flex-direction:column;gap:14px}
+.kicker{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#D4A04A}
+.barra{display:flex;gap:6px;margin-bottom:4px}
+.barra i{height:4px;width:28px;border-radius:2px;background:#3D3530}
+.barra i.on{background:#D4A04A}
+h1{margin:0;font-size:clamp(34px,8vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1.02;text-wrap:balance}
+h1 span{color:#D4A04A}
+.lead{margin:0;font-size:17px;line-height:1.55;color:#CFC4B4;max-width:440px}
+form,.panel{display:flex;flex-direction:column;gap:18px;min-width:0}
+.f{display:flex;flex-direction:column;gap:8px;border:0;margin:0;padding:0;min-width:0}
+label,legend{font-size:14px;font-weight:500;color:#EFE8DD;padding:0}
+label small,legend small{color:#9C9184;font-weight:400}
+input,select,textarea{font:inherit;font-size:16px;color:#EFE8DD;background:#2A2521;border:1.5px solid #3D3530;border-radius:10px;padding:13px 14px;width:100%;transition:border-color .2s}
+textarea{min-height:96px;resize:vertical;line-height:1.5}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#D4A04A 50%),linear-gradient(135deg,#D4A04A 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 12px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:34px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#D4A04A}
+input::placeholder,textarea::placeholder{color:#7A7064}
+.tel{display:grid;grid-template-columns:118px 1fr;gap:10px}
+.cuenta{align-self:flex-end;font-size:12px;color:#9C9184;margin-top:-2px}
+.opciones{display:flex;flex-direction:column;gap:8px}
+.opcion{position:relative;display:block;cursor:pointer}
+.opcion input{position:absolute;opacity:0;width:1px;height:1px}
+.opcion span{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1.5px solid #3D3530;border-radius:10px;background:#2A2521;font-size:15px;line-height:1.35;font-weight:400;transition:border-color .2s,background .2s}
+.opcion span::before{content:"";flex:0 0 18px;height:18px;border-radius:50%;border:1.5px solid #7A7064;transition:all .2s}
+.opcion input:checked+span{border-color:#D4A04A;background:#2F2924}
+.opcion input:checked+span::before{border:5px solid #D4A04A;background:#1E1A17}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;color:#CFC4B4;font-weight:400}
+.check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:#B9512C;padding:0}
+.trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.btn{font:inherit;min-height:54px;padding:0 26px;border:0;border-radius:10px;background:#B9512C;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:filter .2s;width:100%;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
+.btn:hover{filter:brightness(.92);color:#fff} .btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.sec{background:transparent;border:1.5px solid #3D3530;color:#EFE8DD;font-weight:500}
+.btn.sec:hover{border-color:#D4A04A;filter:none}
+.msg{margin:0;font-size:15px;line-height:1.5;min-height:1.5em}
+.msg.err{color:#E7A07F}
+.msg:empty{min-height:0}
+/* Paso 2 */
+.dias{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 20px 10px;margin:0 -20px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding-inline:20px}
+.dias::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;scroll-snap-align:start;width:76px;padding:12px 6px;border:1.5px solid #3D3530;border-radius:12px;background:#2A2521;color:#EFE8DD;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:border-color .2s,background .2s}
+.chip .ds{font-family:'IBM Plex Mono',Consolas,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9C9184}
+.chip .dn{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.chip .dm{font-size:13px;color:#CFC4B4}
+.chip[aria-pressed="true"]{border-color:#D4A04A;background:#2F2924}
+.chip[aria-pressed="true"] .ds{color:#D4A04A}
+.dia-sel{margin:0;font-size:15px;color:#CFC4B4}
+.dia-sel::first-letter{text-transform:uppercase}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.hora{font:inherit;font-size:16px;font-weight:500;min-height:50px;border:1.5px solid #3D3530;border-radius:10px;background:#2A2521;color:#EFE8DD;cursor:pointer;transition:border-color .2s,background .2s}
+.hora:hover{border-color:#7A7064}
+.hora[aria-pressed="true"]{border-color:#D4A04A;background:#D4A04A;color:#1E1A17;font-weight:700}
+.hora.ocupada{background:transparent;border-style:dashed;color:#7A7064;text-decoration:line-through;cursor:not-allowed}
+.nota{margin:0;font-size:13px;color:#9C9184}
+.vacio{margin:0;padding:22px;border:1px solid #3D3530;border-radius:14px;background:#24201C;color:#CFC4B4;line-height:1.55}
+.cargando{display:flex;gap:10px}
+.cargando i{flex:0 0 76px;height:86px;border-radius:12px;background:#2A2521;animation:p 1.2s ease-in-out infinite}
+@keyframes p{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.cargando i{animation:none}}
+.acciones{display:flex;flex-direction:column;gap:12px}
+/* Paso 3 */
+.ok{display:flex;flex-direction:column;gap:14px;padding:26px 22px;border:1px solid #3D3530;border-radius:14px;background:#24201C}
+.ok .marca{width:44px;height:44px;border-radius:50%;background:#D4A04A;display:grid;place-items:center}
+.ok h2{margin:0;font-size:clamp(26px,6vw,36px);letter-spacing:-.03em;line-height:1.1;font-weight:800;text-wrap:balance}
+.ok p{margin:0;color:#CFC4B4;line-height:1.6}
+footer.wrap{display:flex;flex-direction:column;gap:10px;padding-top:24px;padding-bottom:28px;border-top:1px solid #3D3530;font-size:13px;color:#CFC4B4}
+footer a{color:inherit}
+@media (min-width:900px){
+ .wrap{padding:0 24px}
+ header.wrap{padding-top:32px;padding-bottom:32px}
+ .logo{width:170px;height:32px}
+ main.wrap{padding-top:16px;padding-bottom:72px}
+ .paso{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:72px;align-items:start}
+ .intro{position:sticky;top:32px}
+ .dias{margin:0;padding:2px 0 10px}
+ .acciones{flex-direction:row}
+ .acciones .btn{width:auto;flex:1}
+ #elegir{width:auto;align-self:flex-start}
+ footer.wrap{flex-direction:row;justify-content:space-between;flex-wrap:wrap;font-size:14px}
+}
+</style>
+</head>
+<body>
+<header class="wrap"><a href="/" aria-label="Northik AI, inicio"><svg role="img" aria-label="Northik AI" viewBox="-40 -1680 9343 1740" width="170" height="32" class="logo"><path d="M4271.0 0.0H4569.0V-525.0Q4569.0 -703.0 4630.0 -792.0Q4691.0 -881.0 4808.0 -881.0Q4905.0 -881.0 4940.0 -818.5Q4975.0 -756.0 4975.0 -623.0V0.0H5273.0V-658.0Q5273.0 -790.0 5234.0 -891.0Q5195.0 -992.0 5115.0 -1049.0Q5035.0 -1106.0 4909.0 -1106.0Q4781.0 -1106.0 4690.5 -1044.0Q4614.93505859375 -992.231689453125 4569.0 -906.3014526367188V-1390.0H4271.0ZM6102.0 0.0H6400.0V-320.0L6551.0 -470.0L6840.0 0.0H7173.0L6751.0 -676.0L7157.0 -1080.0H6817.0L6400.0 -664.0V-1390.0H6102.0ZM141.0 0.0H439.0V-495.0Q439.0 -691.0 501.5 -786.0Q564.0 -881.0 675.0 -881.0Q769.0 -881.0 807.0 -817.5Q845.0 -754.0 845.0 -639.0V0.0H1143.0V-658.0Q1143.0 -790.0 1104.0 -891.0Q1065.0 -992.0 984.5 -1049.0Q904.0 -1106.0 778.0 -1106.0Q651.0 -1106.0 561.0 -1044.5Q477.24713134765625 -987.2688598632812 429.0 -890.6351318359375V-1080.0H141.0ZM3839.0 0.0H4103.0V-218.0H3938.0Q3907.0 -218.0 3897.5 -229.5Q3888.0 -241.0 3888.0 -274.0V-862.0H4088.0V-1080.0H3888.0V-1364.0L3590.0 -1292.0V-1080.0H3436.0V-862.0H3590.0V-227.0Q3590.0 -117.0 3654.5 -58.5Q3719.0 0.0 3839.0 0.0ZM2577.0 0.0H2875.0V-454.0Q2875.0 -574.0 2903.5 -651.5Q2932.0 -729.0 2977.5 -771.5Q3023.0 -814.0 3076.5 -831.0Q3130.0 -848.0 3179.0 -848.0Q3239.0 -848.0 3304.0 -830.0L3327.0 -1084.0Q3295.0 -1096.0 3263.0 -1101.0Q3231.0 -1106.0 3200.0 -1106.0Q3090.0 -1106.0 2997.0 -1047.5Q2914.45703125 -995.5778198242188 2865.0 -895.2083129882812V-1080.0H2577.0Z" fill="#EFE8DD"/><path d="M2416.0 -540.0C2416.0 -774.0992431640625 2273.878662109375 -975.0042724609375 2071.2109375 -1061.14013671875L1961.7779541015625 -803.332275390625C2064.18603515625 -759.8078002929688 2136.0 -658.2904052734375 2136.0 -540.0C2136.0 -382.04656982421875 2007.9534912109375 -254.0 1850.0 -254.0C1692.0465087890625 -254.0 1564.0 -382.04656982421875 1564.0 -540.0C1564.0 -658.2904052734375 1635.81396484375 -759.8078002929688 1738.2220458984375 -803.332275390625L1628.7891845703125 -1061.14013671875C1426.121337890625 -975.0042724609375 1284.0 -774.0991821289062 1284.0 -540.0C1284.0 -227.40682983398438 1537.4068603515625 26.0 1850.0 26.0C2162.59326171875 26.0 2416.0 -227.40682983398438 2416.0 -540.0Z" fill="#EFE8DD"/><path d="M1850.0 -1159.0Q1761.0 -1159.0 1707.0 -1213.0Q1653.0 -1267.0 1653.0 -1356.0Q1653.0 -1446.0 1707.0 -1499.5Q1761.0 -1553.0 1850.0 -1553.0Q1940.0 -1553.0 1993.5 -1499.5Q2047.0 -1446.0 2047.0 -1356.0Q2047.0 -1267.0 1993.5 -1213.0Q1940.0 -1159.0 1850.0 -1159.0Z" fill="#D4A04A"/><path d="M5530.0 0.0V-1080.0H5828.0V0.0Z" fill="#EFE8DD"/><path d="M5679.0 -1159.0Q5590.0 -1159.0 5536.0 -1213.0Q5482.0 -1267.0 5482.0 -1356.0Q5482.0 -1446.0 5536.0 -1499.5Q5590.0 -1553.0 5679.0 -1553.0Q5769.0 -1553.0 5822.5 -1499.5Q5876.0 -1446.0 5876.0 -1356.0Q5876.0 -1267.0 5822.5 -1213.0Q5769.0 -1159.0 5679.0 -1159.0Z" fill="#EFE8DD"/><path d="M7510.75 0.0 7924.75 -1080.0H8219.5L8632.0 0.0H8383.0L8071.0 -912.0L7759.75 0.0ZM7781.5 -295.5V-480.75H8359.0V-295.5ZM8685.25 0.0V-191.25H8834.5V-888.75H8685.25V-1080.0H9215.5V-888.75H9066.25V-191.25H9215.5V0.0Z" fill="#EFE8DD"/></svg></a><a class="back mono" href="/">← Volver al inicio</a></header>
+<main class="wrap">
+
+ <!-- Paso 1 · Formulario -->
+ <section class="paso" id="paso1" aria-labelledby="t1">
+  <div class="intro">
+   <div class="barra" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+   <span class="kicker mono">Agenda</span>
+   <h1 id="t1">Agenda tu llamada de 20 minutos<span>.</span></h1>
+   <p class="lead">Cuéntanos qué quieres lograr y te decimos por dónde empezar. Sin costo, por Google Meet.</p>
+  </div>
+  <form id="formulario" novalidate>
+   <div class="f"><label for="nombre">Nombre</label><input id="nombre" name="nombre" autocomplete="name" required maxlength="80"></div>
+   <div class="f"><label for="correo">Correo</label><input id="correo" name="correo" type="email" inputmode="email" autocomplete="email" required maxlength="160"></div>
+   <div class="f"><label for="telefono">WhatsApp</label>
+    <div class="tel">
+     <select id="pais" name="pais" aria-label="País del número de WhatsApp"></select>
+     <input id="telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel-national" required maxlength="20" placeholder="300 000 0000">
+    </div></div>
+   <fieldset class="f"><legend>¿Qué te gustaría lograr?</legend>
+    <div class="opciones" id="opciones"></div>
+   </fieldset>
+   <div class="f"><label for="detalle">Cuéntanos un poco más <small>(opcional)</small></label>
+    <textarea id="detalle" name="detalle" maxlength="300"></textarea>
+    <span class="cuenta mono" id="cuenta" aria-live="polite">0/300</span></div>
+   <div class="trap" aria-hidden="true"><label for="sitio_web">No llenar</label><input id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off"></div>
+   <label class="check"><input type="checkbox" id="autorizo" name="autorizo" required><span>Autorizo el tratamiento de mis datos según la <a href="/datos/" target="_blank" rel="noopener">Política de Tratamiento de Datos</a></span></label>
+   <p class="msg" id="msg1" role="status" aria-live="polite"></p>
+   <button type="submit" class="btn" id="elegir">Elegir día y hora</button>
+  </form>
+ </section>
+
+ <!-- Paso 2 · Día y hora -->
+ <section class="paso" id="paso2" aria-labelledby="t2" hidden>
+  <div class="intro">
+   <button type="button" class="back" id="volver">← Volver</button>
+   <div class="barra" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></div>
+   <h1 id="t2" tabindex="-1">Elige el día y la hora<span>.</span></h1>
+  </div>
+  <div class="panel">
+   <div id="selector">
+    <div class="cargando" aria-label="Cargando horarios"><i></i><i></i><i></i><i></i></div>
+   </div>
+   <p class="msg" id="msg2" role="status" aria-live="polite"></p>
+   <div class="acciones">
+    <button type="button" class="btn" id="confirmar" disabled>Confirmar llamada</button>
+    <a class="btn sec" id="whatsapp" href="https://wa.me/573054670254?text=Hola%2C%20quiero%20agendar%20la%20llamada%20de%2020%20minutos" rel="noopener" target="_blank">Prefiero escribir por WhatsApp</a>
+   </div>
+  </div>
+ </section>
+
+ <!-- Paso 3 · Confirmación -->
+ <section class="paso" id="paso3" aria-labelledby="t3" hidden>
+  <div class="intro">
+   <div class="barra" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+   <span class="kicker mono">Agenda</span>
+  </div>
+  <div class="ok">
+   <div class="marca" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E1A17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+   <h2 id="t3" tabindex="-1"></h2>
+   <p id="ok-texto"></p>
+  </div>
+ </section>
+
+</main>
+<footer class="wrap"><span>Luisa Fernanda Tamayo Zuluaga · Northik AI · Envigado, Antioquia, Colombia · <a href="mailto:hola@northik.ai">hola@northik.ai</a></span><span><a href="/terminos/">Términos</a> · <a href="/datos/">Política de datos</a> · <a href="/cookies/">Cookies</a> · <a href="/reembolsos/">Reembolsos</a></span></footer>
+<script type="module" src="/agenda/agenda.js"></script>
+</body>
+</html>

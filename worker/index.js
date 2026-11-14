@@ -2,9 +2,12 @@
 // - /api/contacto: recibe el formulario «Cuéntanos tu proyecto».
 //     Guarda el mensaje en la tabla `contactos` y la prueba de aceptación en `aceptaciones`
 //     (base D1, binding DB). Avisa por correo (binding EMAIL).
+// - /api/agenda/horarios y /api/agenda/reservar: agenda de llamadas con Google Calendar (worker/agenda.js).
+//     Las citas no se guardan en D1: solo existen como eventos en Google Calendar.
 // - /admin/aceptaciones.csv y /admin/contactos.csv: descargas protegidas con Cloudflare Access.
 // - Todo lo demás: páginas estáticas del sitio.
 import { EmailMessage } from "cloudflare:email";
+import { horarios, reservar } from "./agenda.js";
 
 // Súbela cada vez que cambien los Términos o la Política de datos.
 const VERSION_DOCUMENTOS = "2026-11-09";
@@ -46,6 +49,14 @@ export default {
       if (url.pathname === "/api/contacto") {
         if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
         return await contacto(request, env);
+      }
+      if (url.pathname === "/api/agenda/horarios") {
+        if (request.method !== "GET") return json({ ok: false, error: "Método no permitido." }, 405);
+        return await horarios(env, json);
+      }
+      if (url.pathname === "/api/agenda/reservar") {
+        if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
+        return await reservar(request, env, json);
       }
       if (url.pathname === "/admin/aceptaciones.csv" || url.pathname === "/admin/contactos.csv") {
         return await exportar(request, env, url.pathname.includes("aceptaciones") ? "aceptaciones" : "contactos");

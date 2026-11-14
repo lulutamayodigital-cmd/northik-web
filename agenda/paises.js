@@ -1,0 +1,23 @@
+// Países para el selector de WhatsApp. Colombia va primero y es el valor por defecto.
+export const PAISES = [
+  { codigo: 'CO', nombre: 'Colombia', prefijo: '57' },
+  { codigo: 'MX', nombre: 'México', prefijo: '52' },
+  { codigo: 'EC', nombre: 'Ecuador', prefijo: '593' },
+  { codigo: 'PE', nombre: 'Perú', prefijo: '51' },
+  { codigo: 'VE', nombre: 'Venezuela', prefijo: '58' },
+  { codigo: 'PA', nombre: 'Panamá', prefijo: '507' },
+  { codigo: 'CR', nombre: 'Costa Rica', prefijo: '506' },
+  { codigo: 'GT', nombre: 'Guatemala', prefijo: '502' },
+  { codigo: 'SV', nombre: 'El Salvador', prefijo: '503' },
+  { codigo: 'HN', nombre: 'Honduras', prefijo: '504' },
+  { codigo: 'DO', nombre: 'República Dominicana', prefijo: '1' },
+  { codigo: 'CL', nombre: 'Chile', prefijo: '56' },
+  { codigo: 'AR', nombre: 'Argentina', prefijo: '54' },
+  { codigo: 'UY', nombre: 'Uruguay', prefijo: '598' },
+  { codigo: 'PY', nombre: 'Paraguay', prefijo: '595' },
+  { codigo: 'BO', nombre: 'Bolivia', prefijo: '591' },
+  { codigo: 'BR', nombre: 'Brasil', prefijo: '55' },
+  { codigo: 'US', nombre: 'Estados Unidos', prefijo: '1' },
+  { codigo: 'CA', nombre: 'Canadá', prefijo: '1' },
+  { codigo: 'ES', nombre: 'España', prefijo: '34' },
+];
