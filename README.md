@@ -23,7 +23,7 @@ Para probar en el computador: `npx wrangler dev` (abre http://localhost:8787).
 
 ## Agenda (`/agenda/`)
 
-- Reglas de disponibilidad (horarios, duración, anticipación, festivos): `worker/agenda-config.js`.
+- Reglas de disponibilidad (horarios, duración, anticipación, festivos y días sin citas propios en `diasSinCitas`): `worker/agenda-config.js`. Cada cambio requiere `npx wrangler deploy`.
 - Secretos en Cloudflare, nunca en el repositorio:
   ```bash
   npx wrangler secret put GOOGLE_CLIENT_SECRET

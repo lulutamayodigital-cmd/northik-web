@@ -39,6 +39,7 @@ export function citasPosibles(config, ahora = new Date()) {
     const dia = new Date(Date.UTC(hoy.a, hoy.m - 1, hoy.d + i));
     const fechaIso = `${dia.getUTCFullYear()}-${pad(dia.getUTCMonth() + 1)}-${pad(dia.getUTCDate())}`;
     if (config.sinCitasEnFestivosDeColombia && esFestivo(fechaIso)) continue;
+    if ((config.diasSinCitas || []).includes(fechaIso)) continue;
     const franjas = config.franjas[DIAS[dia.getUTCDay()]] || [];
     for (const { desde: ini, hasta: fin } of franjas) {
       for (let h = ini; sumarMin(h, config.duracionMin) <= fin; h = sumarMin(h, config.duracionMin + config.pausaMin)) {
