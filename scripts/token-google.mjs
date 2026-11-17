@@ -1,7 +1,7 @@
 // Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare.
 // Si todavía no existe, crea la hoja privada «Northik · Agenda» y anota su ID en wrangler.jsonc.
 // Uso:  node scripts/token-google.mjs
-// - Inicia sesión con northik.admin@gmail.com cuando se abra Google.
+// - Cuando se abra Google, inicia sesión con la cuenta de Northik indicada en la documentación privada.
 // - El token nunca se muestra ni se escribe en disco: va directo a `wrangler secret put`.
 // Requisitos: GOOGLE_CLIENT_ID en wrangler.jsonc y, en Google Cloud, la URI de redirección
 // http://127.0.0.1:8765/callback autorizada en el cliente OAuth (tipo "Aplicación web").
@@ -78,7 +78,7 @@ const reto = crypto.createHash("sha256").update(verificador).digest("base64url")
 const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
 url.search = new URLSearchParams({
   client_id: clientId, redirect_uri: REDIRECCION, response_type: "code", scope: ALCANCES,
-  access_type: "offline", prompt: "consent", login_hint: "northik.admin@gmail.com",
+  access_type: "offline", prompt: "consent",
   state: estado, code_challenge: reto, code_challenge_method: "S256",
 });
 
