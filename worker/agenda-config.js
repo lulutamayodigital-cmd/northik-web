@@ -29,7 +29,7 @@ export const CONFIG = {
 
   // Días sin citas propios (vacaciones, viajes…), además de los festivos. Formato 'AAAA-MM-DD'.
   // Ejemplo: diasSinCitas: ['2026-12-24', '2026-12-31'],
-  diasSinCitas: [],
+  diasSinCitas: ['2026-12-07', '2026-12-24', '2026-12-30', '2026-12-31'],
 
   // Hoja privada en el Drive de northik.admin (su ID va en AGENDA_SHEET_ID, wrangler.jsonc).
   hoja: {
