@@ -4,13 +4,15 @@
 //     (base D1, binding DB). Avisa por correo (binding EMAIL).
 // - /api/agenda/horarios y /api/agenda/reservar: agenda de llamadas con Google Calendar (worker/agenda.js).
 //     Las citas no se guardan en D1: solo existen como eventos en Google Calendar.
+// - /api/creadores: registro de creadores de northik.ai/creadores (worker/creadores.js).
+//     Fila en la hoja privada «Northik · Creadores»; pantallazos en R2 (privado); respaldo en D1 si la hoja falla.
 // - /admin/aceptaciones.csv y /admin/contactos.csv: descargas protegidas con Cloudflare Access.
+// - /admin/creadores/<registro>/<pantallazo>: pantallazos de los creadores, protegidos con Cloudflare Access.
 // - Todo lo demás: páginas estáticas del sitio.
 import { EmailMessage } from "cloudflare:email";
 import { horarios, reservar, borrarAgendaVencida } from "./agenda.js";
-
-// Súbela cada vez que cambien los Términos o la Política de datos.
-const VERSION_DOCUMENTOS = "2026-11-13.2";
+import { registrar, archivoCreador, borrarCreadoresVencidos, HOJA_CREADORES } from "./creadores.js";
+import { VERSION_DOCUMENTOS } from "./documentos.js"; // súbela cada vez que cambien los Términos o la Política de datos
 const MEDIO = "Formulario web northik.ai";
 const URL_TERMINOS = "https://northik.ai/terminos/";
 const URL_DATOS = "https://northik.ai/datos/";
@@ -43,6 +45,8 @@ export default {
     ctx.waitUntil(borrarInteresadosVencidos(env));
     // Agenda: filas de la hoja y eventos creados por /agenda con más de 24 meses.
     ctx.waitUntil(borrarAgendaVencida(env));
+    // Creadores: filas de la hoja, pantallazos y respaldos con más de 24 meses desde el registro.
+    ctx.waitUntil(borrarCreadoresVencidos(env));
   },
 
   async fetch(request, env, ctx) {
@@ -59,6 +63,23 @@ export default {
       if (url.pathname === "/api/agenda/reservar") {
         if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
         return await reservar(request, env, ctx, json);
+      }
+      if (url.pathname === "/api/creadores") {
+        if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
+        return await registrar(request, env, ctx, json);
+      }
+      // Solo en el computador (GOOGLE_MOCK en .dev.vars): muestra las filas de la hoja simulada.
+      if (url.pathname === "/api/creadores/simulado" && env.GOOGLE_MOCK && ["localhost", "127.0.0.1"].includes(url.hostname)) {
+        const { _simulado } = await import("./google.js");
+        const filas = Object.entries(_simulado.hojas).filter(([k]) => k.endsWith("/" + HOJA_CREADORES.pestana)).flatMap(([, f]) => f);
+        return json({ ok: true, columnas: HOJA_CREADORES.columnas, filas });
+      }
+      if (url.pathname.startsWith("/admin/creadores/")) {
+        if (request.method !== "GET") return json({ ok: false, error: "Método no permitido." }, 405);
+        if (!(await accesoValido(request, env))) {
+          return new Response("Acceso restringido.", { status: 403, headers: cabeceras("text/plain; charset=utf-8") });
+        }
+        return await archivoCreador(env, url.pathname, cabeceras);
       }
       if (url.pathname === "/admin/aceptaciones.csv" || url.pathname === "/admin/contactos.csv") {
         return await exportar(request, env, url.pathname.includes("aceptaciones") ? "aceptaciones" : "contactos");

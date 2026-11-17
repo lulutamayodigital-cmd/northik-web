@@ -1,4 +1,4 @@
-// Aviso interno por correo (mismo binding EMAIL y destino que los avisos del formulario de contacto).
+// Aviso interno por correo (agenda y registro de creadores) (mismo binding EMAIL y destino que los avisos del formulario de contacto).
 import { EmailMessage } from "cloudflare:email";
 
 function b64(s) {
@@ -7,12 +7,12 @@ function b64(s) {
   return btoa(bin);
 }
 
-export async function avisoInterno(env, asunto, lineas) {
+export async function avisoInterno(env, asunto, lineas, remitente = "Agenda Northik") {
   if (!env.EMAIL || !env.AVISO_PARA) return;
   const de = env.AVISO_DE || "formulario@northik.ai";
   const id = crypto.randomUUID();
   const raw = [
-    "From: Agenda Northik <" + de + ">",
+    "From: " + remitente + " <" + de + ">",
     "To: " + env.AVISO_PARA,
     "Subject: =?UTF-8?B?" + b64(asunto) + "?=",
     "Message-ID: <" + id + "@northik.ai>",

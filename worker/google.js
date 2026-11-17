@@ -110,8 +110,11 @@ async function idPestana(env, hojaId, pestana) {
 }
 
 export async function agregarFila(env, hojaId, pestana, fila) {
-  if (env.GOOGLE_MOCK) { simulado.filas.push(fila); return; }
-  if (!hojaId) throw new Error('falta AGENDA_SHEET_ID');
+  if (env.GOOGLE_MOCK) {
+    if (env.GOOGLE_MOCK_FALLA_HOJA) throw new Error('simulado: la hoja no responde');
+    simulado.hoja(hojaId, pestana).push(fila); return;
+  }
+  if (!hojaId) throw new Error('falta el ID de la hoja');
   const sheetId = await idPestana(env, hojaId, pestana);
   // Cada celda va como texto (nunca como fórmula) y sin negrita (no copia el formato de los títulos).
   await llamar(env, `${SHEETS}/${hojaId}:batchUpdate`, {
@@ -127,16 +130,19 @@ export async function agregarFila(env, hojaId, pestana, fila) {
   });
 }
 
-export async function leerFilas(env, hojaId, pestana) {
-  if (env.GOOGLE_MOCK) return simulado.filas;
-  const j = await llamar(env, `${SHEETS}/${hojaId}/values/${encodeURIComponent(`${pestana}!A2:J`)}`);
+export async function leerFilas(env, hojaId, pestana, rango = 'A2:J') {
+  if (env.GOOGLE_MOCK) return simulado.hoja(hojaId, pestana);
+  const j = await llamar(env, `${SHEETS}/${hojaId}/values/${encodeURIComponent(`${pestana}!${rango}`)}`);
   return j.values || [];
 }
 
 // Borra filas por posición (0 = primera fila de datos, debajo de los títulos).
 export async function borrarFilas(env, hojaId, pestana, posiciones) {
   if (!posiciones.length) return;
-  if (env.GOOGLE_MOCK) { simulado.filas = simulado.filas.filter((_, i) => !posiciones.includes(i)); return; }
+  if (env.GOOGLE_MOCK) {
+    const clave = `${hojaId}/${pestana}`;
+    simulado.hojas[clave] = simulado.hoja(hojaId, pestana).filter((_, i) => !posiciones.includes(i)); return;
+  }
   const sheetId = await idPestana(env, hojaId, pestana);
   // De abajo hacia arriba para que las posiciones no se corran.
   const requests = [...posiciones].sort((a, b) => b - a).map((i) => ({
@@ -145,10 +151,29 @@ export async function borrarFilas(env, hojaId, pestana, posiciones) {
   await llamar(env, `${SHEETS}/${hojaId}:batchUpdate`, { method: 'POST', body: JSON.stringify({ requests }) });
 }
 
+// Crea una hoja privada (no se comparte con nadie) con una pestaña y sus títulos en negrita. Devuelve su ID.
+export async function crearHoja(env, titulo, pestana, columnas) {
+  if (env.GOOGLE_MOCK) return 'hoja-simulada';
+  const j = await llamar(env, SHEETS, {
+    method: 'POST',
+    body: JSON.stringify({
+      properties: { title: titulo, locale: 'es_CO', timeZone: 'America/Bogota' },
+      sheets: [{
+        properties: { title: pestana, gridProperties: { frozenRowCount: 1, columnCount: columnas.length } },
+        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: columnas.map((c) => ({
+          userEnteredValue: { stringValue: c }, userEnteredFormat: { textFormat: { bold: true } },
+        })) }] }],
+      }],
+    }),
+  });
+  return j.spreadsheetId;
+}
+
 // ---------- Modo de prueba local (GOOGLE_MOCK=1): no toca Google ----------
 const simulado = {
   creados: [],
-  filas: [],
+  hojas: {}, // filas por hoja y pestaña: { 'id/pestaña': [[...], ...] }
+  hoja(hojaId, pestana) { return (this.hojas[`${hojaId}/${pestana}`] ||= []); },
   // Simula que otras personas ya tomaron las 9:30 y 3:30 de los días impares.
   ocupados(desde, hasta) {
     const extra = [];

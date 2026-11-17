@@ -14,6 +14,11 @@
   "d1_databases": [
     { "binding": "DB", "database_name": "northik-formularios", "database_id": "cd77a76f-5efa-4b64-a121-cae6fd0b8da7" }
   ],
+  // Pantallazos de estadísticas de los creadores (/creadores/). Bucket privado: no tiene acceso público.
+  // Crearlo una sola vez antes de publicar: npx wrangler r2 bucket create northik-creadores
+  "r2_buckets": [
+    { "binding": "ARCHIVOS_CREADORES", "bucket_name": "northik-creadores" }
+  ],
   // Límite de envíos del formulario: 5 por minuto por dirección.
   "ratelimits": [
     { "name": "LIMITE_FORMULARIO", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }
@@ -32,9 +37,12 @@
     // van como secretos: npx wrangler secret put GOOGLE_CLIENT_SECRET / GOOGLE_REFRESH_TOKEN
     "GOOGLE_CLIENT_ID": "990715747261-cb80ahirg2o98pfftsr7a2a8psofsn31.apps.googleusercontent.com",
     // Agenda: ID de la hoja privada «Northik · Agenda» (lo llena scripts/token-google.mjs al crearla).
-    "AGENDA_SHEET_ID": "17FFgW7dc5fM5EHuaH-1gu-PHtSQ8JNpWcOPIKZ7gn2M"
+    "AGENDA_SHEET_ID": "17FFgW7dc5fM5EHuaH-1gu-PHtSQ8JNpWcOPIKZ7gn2M",
+    // Creadores: ID de la hoja privada «Northik · Creadores». Si queda vacío, la web la crea sola con el primer
+    // registro (en el Drive de northik.admin) y guarda su ID en D1 (tabla ajustes).
+    "CREADORES_SHEET_ID": ""
   },
-  // Borrado mensual de interesados con más de 24 meses sin escribir y de citas de /agenda con más de 24 meses: día 1 a las 3:00 a. m. de Colombia.
+  // Borrado mensual de interesados con más de 24 meses sin escribir, de citas de /agenda y de registros de /creadores con más de 24 meses: día 1 a las 3:00 a. m. de Colombia.
   "triggers": { "crons": ["0 8 1 * *"] },
   "observability": { "enabled": true }
 }
