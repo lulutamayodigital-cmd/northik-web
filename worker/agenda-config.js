@@ -3,7 +3,7 @@
 
 export const CONFIG = {
   // Calendario donde se leen las horas ocupadas y se crean las citas.
-  calendarioId: 'primary', // el principal de northik.admin@gmail.com
+  calendarioId: 'primary', // el calendario principal de la cuenta de Google conectada (ver documentación privada)
 
   zonaHoraria: 'America/Bogota',
 
