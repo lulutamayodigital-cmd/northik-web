@@ -36,7 +36,7 @@ export const CONFIG = {
     nombre: 'Northik · Agenda',
     pestana: 'Citas',
     columnas: ['Fecha de reserva', 'Fecha de la cita', 'Hora', 'Nombre', 'Correo', 'WhatsApp',
-      'Qué quiere lograr', 'Mensaje', 'Origen', 'ID del evento'],
+      'Qué quiere lograr', 'Mensaje', 'Origen', 'ID del evento', 'Estado'],
   },
 
   // El borrado mensual elimina filas y eventos de /agenda con más de estos meses.

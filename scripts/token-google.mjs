@@ -21,7 +21,7 @@ const ALCANCES = [
 ].join(" ");
 
 const COLUMNAS = ["Fecha de reserva", "Fecha de la cita", "Hora", "Nombre", "Correo", "WhatsApp",
-  "Qué quiere lograr", "Mensaje", "Origen", "ID del evento"];
+  "Qué quiere lograr", "Mensaje", "Origen", "ID del evento", "Estado"];
 
 // Crea la hoja privada (no se comparte con nadie) con la pestaña «Citas» y sus títulos.
 async function crearHoja(accessToken) {

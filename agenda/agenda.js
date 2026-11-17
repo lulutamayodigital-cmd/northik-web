@@ -2,6 +2,7 @@
 // Paso 1: formulario · Paso 2: día y hora · Paso 3: confirmación.
 // Todo lo que toca Google pasa por /api/agenda/* (worker). Aquí no hay claves ni tokens.
 import { PAISES } from "./paises.js";
+import { crearSelector } from "./selector.js";
 
 const OBJETIVOS = [
   "Aparecer en video sin grabarme (gemelo digital)",
@@ -58,81 +59,30 @@ form.addEventListener("submit", (e) => {
 });
 
 // ---------- Paso 2 ----------
-let dias = [];
-let diaSel = null;
-let horaSel = null;
-
-const fmtDia = (fecha, op) => new Intl.DateTimeFormat("es-CO", { timeZone: "UTC", ...op }).format(new Date(fecha + "T12:00:00Z"));
-function fmtHora(hhmm) {
-  let [h, m] = hhmm.split(":").map(Number);
-  const p = h >= 12 ? "pm" : "am";
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, "0")} ${p}`;
-}
+const selector = crearSelector($("selector"), () => actualizarConfirmar());
 
 async function cargarHorarios(mensaje = "") {
-  const sel = $("selector");
-  sel.innerHTML = '<div class="cargando" aria-label="Cargando horarios"><i></i><i></i><i></i><i></i></div>';
-  horaSel = null; actualizarConfirmar();
   const m = $("msg2");
   m.className = mensaje ? "msg err" : "msg"; m.textContent = mensaje;
+  let hay;
   try {
-    const r = await fetch("/api/agenda/horarios", { headers: { accept: "application/json" } });
-    const j = await r.json();
-    if (!r.ok || !j.ok) throw new Error(j.error);
-    dias = j.dias;
+    hay = await selector.cargar();
   } catch (e) {
-    sel.innerHTML = "";
     m.className = "msg err"; m.textContent = (e && e.message) || MSG_ERROR;
     return;
   }
-  if (!dias.length) {
-    sel.innerHTML = '<p class="vacio">Por ahora no hay espacios. Escríbenos por WhatsApp y buscamos una hora.</p>';
+  if (!hay) {
+    $("selector").innerHTML = '<p class="vacio">Por ahora no hay espacios. Escríbenos por WhatsApp y buscamos una hora.</p>';
     $("confirmar").hidden = true;
     return;
   }
   $("confirmar").hidden = false;
-  if (!dias.some((d) => d.fecha === diaSel)) diaSel = dias[0].fecha;
-  pintarSelector();
 }
 
-function pintarSelector() {
-  const chips = dias.map((d) => `
-    <button type="button" class="chip" data-fecha="${d.fecha}" aria-pressed="${d.fecha === diaSel}"
-      aria-label="${fmtDia(d.fecha, { weekday: "long", day: "numeric", month: "long" })}">
-      <span class="ds">${fmtDia(d.fecha, { weekday: "short" }).replace(".", "")}</span>
-      <span class="dn">${fmtDia(d.fecha, { day: "numeric" })}</span>
-      <span class="dm">${fmtDia(d.fecha, { month: "short" }).replace(".", "")}</span>
-    </button>`).join("");
-  const dia = dias.find((d) => d.fecha === diaSel);
-  const horas = dia.horas.map((h) => h.ocupada
-    ? `<button type="button" class="hora ocupada" disabled aria-label="${fmtHora(h.hora)}, ocupada">${fmtHora(h.hora)}</button>`
-    : `<button type="button" class="hora" data-inicio="${h.inicio}" data-hora="${h.hora}" aria-pressed="${h.inicio === horaSel}">${fmtHora(h.hora)}</button>`).join("");
-  $("selector").innerHTML = `
-    <div class="dias" role="group" aria-label="Días disponibles">${chips}</div>
-    <div class="panel" style="gap:12px;margin-top:14px">
-      <p class="dia-sel">${fmtDia(diaSel, { weekday: "long", day: "numeric", month: "long" })}</p>
-      <div class="horas" role="group" aria-label="Horas">${horas}</div>
-      <p class="nota">Horas en hora de Colombia (GMT-5).</p>
-    </div>`;
-  const activo = $("selector").querySelector('.chip[aria-pressed="true"]');
-  if (activo) activo.scrollIntoView({ block: "nearest", inline: "nearest" });
-}
-
-$("selector").addEventListener("click", (e) => {
-  const chip = e.target.closest(".chip");
-  if (chip) { diaSel = chip.dataset.fecha; horaSel = null; pintarSelector(); actualizarConfirmar(); return; }
-  const hora = e.target.closest(".hora:not(.ocupada)");
-  if (hora) {
-    horaSel = hora.dataset.inicio;
-    $("selector").querySelectorAll(".hora").forEach((b) => b.setAttribute("aria-pressed", String(b === hora)));
-    actualizarConfirmar();
-  }
-});
-
-function actualizarConfirmar() { $("confirmar").disabled = !horaSel; }
+function actualizarConfirmar() { $("confirmar").disabled = !selector.hora; }
 
 $("confirmar").addEventListener("click", async () => {
+  const horaSel = selector.hora;
   if (!horaSel) return;
   const btn = $("confirmar"), m = $("msg2");
   btn.disabled = true; btn.textContent = "Confirmando…";
@@ -149,7 +99,11 @@ $("confirmar").addEventListener("click", async () => {
       $("t3").textContent = `Listo, ${d.nombre}. Te esperamos el ${j.dia} a las ${j.hora}.`;
       $("ok-texto").innerHTML = "";
       $("ok-texto").append(
-        `Te llegó una invitación de Google Calendar a ${d.correo} con el enlace de Google Meet. Si necesitas cambiar la hora, `,
+        `Te llegó una invitación de Google Calendar a ${d.correo} con el enlace de Google Meet. `,
+        ...(j.enlace
+          ? ["Si necesitas cambiar la hora o cancelar, usa ",
+            Object.assign(document.createElement("a"), { href: j.enlace, textContent: "este enlace" }), " o "]
+          : ["Si necesitas cambiar la hora, "]),
         Object.assign(document.createElement("a"), { href: $("whatsapp").href, target: "_blank", rel: "noopener", textContent: "escríbenos por WhatsApp" }),
         ".",
       );

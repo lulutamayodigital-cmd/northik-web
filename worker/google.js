@@ -28,7 +28,11 @@ async function llamar(env, url, init = {}) {
     ...init,
     headers: { authorization: `Bearer ${await accessToken(env)}`, 'content-type': 'application/json' },
   });
-  if (!r.ok) throw new Error(`google ${r.status} ${await r.text().catch(() => '')}`.slice(0, 300));
+  if (!r.ok) {
+    const error = new Error(`google ${r.status} ${await r.text().catch(() => '')}`.slice(0, 300));
+    error.status = r.status;
+    throw error;
+  }
   return r.status === 204 ? null : r.json();
 }
 
@@ -60,6 +64,38 @@ export async function crearEvento(env, calendarioId, evento) {
     method: 'POST',
     body: JSON.stringify(evento),
   });
+}
+
+// Un evento por su ID. Devuelve null si no existe.
+export async function obtenerEvento(env, calendarioId, id) {
+  if (env.GOOGLE_MOCK) return simulado.obtener(id);
+  try {
+    return await llamar(env, `${CAL}/calendars/${encodeURIComponent(calendarioId)}/events/${encodeURIComponent(id)}`);
+  } catch (e) {
+    if (e.status === 404 || e.status === 410) return null;
+    throw e;
+  }
+}
+
+// Cambia la hora de un evento. Google le envía a la persona la invitación actualizada (mismo enlace de Meet).
+export async function moverEvento(env, calendarioId, id, inicio, fin, zona) {
+  if (env.GOOGLE_MOCK) return simulado.mover(id, inicio, fin);
+  return llamar(env, `${CAL}/calendars/${encodeURIComponent(calendarioId)}/events/${encodeURIComponent(id)}?sendUpdates=all`, {
+    method: 'PATCH',
+    body: JSON.stringify({ start: { dateTime: inicio.toISOString(), timeZone: zona }, end: { dateTime: fin.toISOString(), timeZone: zona } }),
+  });
+}
+
+// Cancela un evento a pedido de la persona. Google le envía el aviso de cancelación y la hora queda libre.
+export async function cancelarEvento(env, calendarioId, id) {
+  if (env.GOOGLE_MOCK) return simulado.cancelar(id);
+  try {
+    await llamar(env, `${CAL}/calendars/${encodeURIComponent(calendarioId)}/events/${encodeURIComponent(id)}?sendUpdates=all`, {
+      method: 'DELETE',
+    });
+  } catch (e) {
+    if (e.status !== 410) throw e; // 410: ya estaba cancelado
+  }
 }
 
 // Eventos creados por /agenda que terminaron antes de `hasta`.
@@ -130,6 +166,52 @@ export async function agregarFila(env, hojaId, pestana, fila) {
   });
 }
 
+const letraColumna = (i) => String.fromCharCode(65 + i); // 0 → A (alcanza hasta Z)
+
+// Cambia celdas de una fila (posición 0 = primera fila de datos). `cambios`: { índiceDeColumna: texto }.
+// RAW: el texto se guarda tal cual, nunca como fórmula.
+export async function actualizarCeldas(env, hojaId, pestana, posicion, cambios) {
+  if (env.GOOGLE_MOCK) {
+    const fila = simulado.hoja(hojaId, pestana)[posicion];
+    for (const [col, valor] of Object.entries(cambios)) fila[col] = valor;
+    return;
+  }
+  const data = Object.entries(cambios).map(([col, valor]) => ({
+    range: `${pestana}!${letraColumna(+col)}${posicion + 2}`, values: [[String(valor ?? '')]],
+  }));
+  await llamar(env, `${SHEETS}/${hojaId}/values:batchUpdate`, {
+    method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data }),
+  });
+}
+
+// Escribe un título en la primera fila (en negrita) si esa celda está vacía. Una vez por instancia.
+const titulosRevisados = new Set();
+export async function asegurarTitulo(env, hojaId, pestana, col, texto) {
+  const clave = `${hojaId}/${pestana}/${col}`;
+  if (env.GOOGLE_MOCK || titulosRevisados.has(clave)) return;
+  const meta = await llamar(env, `${SHEETS}/${hojaId}?fields=sheets.properties(sheetId,title,gridProperties.columnCount)`);
+  const props = meta.sheets.find((x) => x.properties.title === pestana)?.properties;
+  if (!props) throw new Error(`no existe la pestaña ${pestana}`);
+  const columnas = props.gridProperties?.columnCount || 0;
+  // Si la columna existe y ya tiene título, no hay nada que hacer. (Leer una columna que no existe da error.)
+  let vacia = true;
+  if (columnas > col) {
+    const j = await llamar(env, `${SHEETS}/${hojaId}/values/${encodeURIComponent(`${pestana}!${letraColumna(col)}1`)}`);
+    vacia = !j.values?.[0]?.[0];
+  }
+  if (vacia) {
+    const requests = [];
+    if (columnas <= col) requests.push({ appendDimension: { sheetId: props.sheetId, dimension: 'COLUMNS', length: col + 1 - columnas } });
+    requests.push({ updateCells: {
+      start: { sheetId: props.sheetId, rowIndex: 0, columnIndex: col },
+      rows: [{ values: [{ userEnteredValue: { stringValue: texto }, userEnteredFormat: { textFormat: { bold: true } } }] }],
+      fields: 'userEnteredValue,userEnteredFormat.textFormat.bold',
+    } });
+    await llamar(env, `${SHEETS}/${hojaId}:batchUpdate`, { method: 'POST', body: JSON.stringify({ requests }) });
+  }
+  titulosRevisados.add(clave);
+}
+
 export async function leerFilas(env, hojaId, pestana, rango = 'A2:J') {
   if (env.GOOGLE_MOCK) return simulado.hoja(hojaId, pestana);
   const j = await llamar(env, `${SHEETS}/${hojaId}/values/${encodeURIComponent(`${pestana}!${rango}`)}`);
@@ -184,11 +266,25 @@ const simulado = {
         extra.push({ start: new Date(ini).toISOString(), end: new Date(ini + 20 * 60000).toISOString() });
       }
     }
-    return [...this.creados, ...extra];
+    const propios = this.creados.filter((e) => e.status !== 'cancelled').map((e) => ({ start: e.start.dateTime, end: e.end.dateTime }));
+    return [...propios, ...extra];
   },
   crear(evento) {
-    this.creados.push({ start: evento.start.dateTime, end: evento.end.dateTime });
-    return { id: 'simulado-' + this.creados.length, hangoutLink: 'https://meet.google.com/xxx-xxxx-xxx' };
+    const ev = { ...evento, id: evento.id || 'simulado' + this.creados.length, status: 'confirmed', hangoutLink: 'https://meet.google.com/xxx-xxxx-xxx' };
+    this.creados.push(ev);
+    return ev;
+  },
+  obtener(id) { return this.creados.find((e) => e.id === id) || null; },
+  mover(id, inicio, fin) {
+    const ev = this.obtener(id);
+    ev.start = { dateTime: inicio.toISOString() }; ev.end = { dateTime: fin.toISOString() };
+    return ev;
+  },
+  cancelar(id) { const ev = this.obtener(id); if (ev) ev.status = 'cancelled'; },
+  // Solo para probar en el computador: crea una cita que ya pasó.
+  crearPasada(evento) {
+    const ini = new Date(Date.now() - 86400000);
+    return this.crear({ ...evento, start: { dateTime: ini.toISOString() }, end: { dateTime: new Date(ini.getTime() + 1200000).toISOString() } });
   },
 };
 export const _simulado = simulado;

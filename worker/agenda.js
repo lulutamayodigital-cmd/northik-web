@@ -3,16 +3,24 @@
 // - POST /api/agenda/reservar: valida, vuelve a revisar que la hora siga libre y crea el evento con Google Meet.
 //   Además agrega una fila a la hoja privada «Northik · Agenda» (pestaña «Citas»). Si la hoja falla,
 //   la cita igual queda creada y llega un aviso por correo.
+// - POST /api/agenda/cita: ver, cambiar o cancelar una cita con el enlace firmado (worker/enlace-cita.js).
+//   Cambiar mueve el mismo evento (mismo enlace de Meet); cancelar lo borra con aviso a la persona.
+//   La fila de la hoja se actualiza (columna «Estado») y llega un aviso por correo.
 // - borrarAgendaVencida: borrado mensual (cron) de filas y eventos de /agenda con más de 24 meses.
 // Las citas NO se guardan en D1.
 import { CONFIG, OBJETIVOS } from "./agenda-config.js";
 import { citasPosibles, agruparPorDia, seCruza } from "./horarios.js";
-import { horasOcupadas, crearEvento, agregarFila, leerFilas, borrarFilas, eventosAgendaHasta, borrarEvento, MARCA_AGENDA } from "./google.js";
+import { horasOcupadas, crearEvento, agregarFila, leerFilas, borrarFilas, eventosAgendaHasta, borrarEvento, MARCA_AGENDA,
+  obtenerEvento, moverEvento, cancelarEvento, actualizarCeldas, asegurarTitulo } from "./google.js";
+import { nuevoIdEvento, hayFirma, enlaceCita, verificar } from "./enlace-cita.js";
 import { avisoInterno } from "./aviso.js";
 import { PAISES } from "../agenda/paises.js";
 
 const MSG_OCUPADA = "Esa hora se acaba de ocupar. Elige otra.";
 const MSG_ERROR = "No pudimos agendar la llamada. Intenta de nuevo o escríbenos por WhatsApp.";
+const MSG_CITA_ERROR = "No pudimos guardar el cambio. Intenta de nuevo o escríbenos por WhatsApp.";
+const MSG_LIMITE = "Recibimos varios intentos seguidos. Espera un minuto e intenta de nuevo.";
+const COL = { fecha: 1, hora: 2, idEvento: 9, estado: 10 };
 const CAMPOS = new Set(["nombre", "correo", "pais", "telefono", "objetivo", "detalle", "autorizo", "inicio", "origen", "sitio_web"]);
 
 // ---------- Validación ----------
@@ -64,6 +72,9 @@ function fechaHoraBogota(d) {
 }
 
 async function registrarEnHoja(env, fila) {
+  // El título «Estado» nunca impide guardar la fila.
+  await asegurarTitulo(env, env.AGENDA_SHEET_ID, CONFIG.hoja.pestana, COL.estado, CONFIG.hoja.columnas[COL.estado])
+    .catch((e) => console.error("No se pudo escribir el título Estado:", (e && e.stack) || e));
   try {
     await agregarFila(env, env.AGENDA_SHEET_ID, CONFIG.hoja.pestana, fila);
   } catch (e) {
@@ -123,13 +134,16 @@ async function _horarios(env, json) {
   return json({ ok: true, dias: agruparPorDia(posibles, ocupados) });
 }
 
+// Mismo límite de envíos del formulario de contacto (5 por minuto por dirección).
+async function dentroDelLimite(request, env) {
+  if (!env.LIMITE_FORMULARIO) return true;
+  const clave = request.headers.get("cf-connecting-ip") || "sin-ip";
+  const { success } = await env.LIMITE_FORMULARIO.limit({ key: clave });
+  return success;
+}
+
 async function _reservar(request, env, ctx, json) {
-  // Mismo límite de envíos del formulario de contacto (5 por minuto por dirección).
-  if (env.LIMITE_FORMULARIO) {
-    const clave = request.headers.get("cf-connecting-ip") || "sin-ip";
-    const { success } = await env.LIMITE_FORMULARIO.limit({ key: clave });
-    if (!success) return json({ ok: false, error: "Recibimos varios intentos seguidos. Espera un minuto e intenta de nuevo." }, 429);
-  }
+  if (!(await dentroDelLimite(request, env))) return json({ ok: false, error: MSG_LIMITE }, 429);
   if (!(request.headers.get("content-type") || "").includes("application/json")) return json({ ok: false, error: MSG_ERROR }, 415);
   const texto = await request.text();
   if (texto.length > 5000) return json({ ok: false, error: MSG_ERROR }, 413);
@@ -154,9 +168,15 @@ async function _reservar(request, env, ctx, json) {
   const ocupados = await horasOcupadas(env, CONFIG.calendarioId, cita.inicio, cita.fin);
   if (seCruza(cita, ocupados)) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
 
+  // ID propio del evento: así el enlace para cambiar o cancelar va desde el principio en la invitación.
+  // Si todavía no existe el secreto AGENDA_FIRMA, la cita se crea igual, sin enlace.
+  const idEvento = nuevoIdEvento();
+  const enlace = hayFirma(env) ? await enlaceCita(env, new URL(request.url).origin, idEvento) : "";
   const evento = await crearEvento(env, CONFIG.calendarioId, {
+    id: idEvento,
     summary: `Llamada Northik · ${datos.nombre}`,
     description: [
+      ...(enlace ? [`Para cambiar la hora o cancelar: ${enlace}`, ""] : []),
       `WhatsApp: ${datos.whatsapp}`,
       `Qué quiere lograr: ${datos.objetivo}`,
       `Más detalles: ${datos.detalle || "—"}`,
@@ -174,12 +194,99 @@ async function _reservar(request, env, ctx, json) {
   const etiqueta = etiquetaFecha(cita.inicio);
   const fila = [
     fechaHoraBogota(new Date()), cita.fecha, etiqueta.hora, datos.nombre, datos.correo, datos.whatsapp,
-    datos.objetivo, datos.detalle, datos.origen, evento?.id || "",
+    datos.objetivo, datos.detalle, datos.origen, evento?.id || idEvento, "Agendada",
   ];
   const guardar = registrarEnHoja(env, fila);
   if (ctx?.waitUntil) ctx.waitUntil(guardar); else await guardar;
 
-  return json({ ok: true, ...etiqueta });
+  return json({ ok: true, ...etiqueta, enlace });
+}
+
+// ---------- Cambiar o cancelar con el enlace ----------
+const ACCIONES = new Set(["ver", "cambiar", "cancelar"]);
+
+// Estado de la cita: activa, pasada o cancelada. Solo acepta eventos creados por /agenda.
+function estadoDe(ev) {
+  if (!ev || ev.status === "cancelled") return "cancelada";
+  if (ev.extendedProperties?.private?.[MARCA_AGENDA.clave] !== MARCA_AGENDA.valor) return "invalido";
+  return Date.parse(ev.start?.dateTime) <= Date.now() ? "pasada" : "activa";
+}
+
+const personaDe = (ev) => ({
+  nombre: ev.attendees?.[0]?.displayName || "—",
+  correo: ev.attendees?.[0]?.email || "—",
+  whatsapp: (/^WhatsApp: (.+)$/m.exec(ev.description || "") || [])[1] || "—",
+});
+
+// Actualiza la fila de la cita en la hoja y te avisa por correo. Nunca bloquea la respuesta.
+async function registrarCambio(env, idEvento, cambios, asunto, lineas) {
+  let nota = "";
+  try {
+    await asegurarTitulo(env, env.AGENDA_SHEET_ID, CONFIG.hoja.pestana, COL.estado, CONFIG.hoja.columnas[COL.estado])
+      .catch((e) => console.error("No se pudo escribir el título Estado:", (e && e.stack) || e));
+    const filas = await leerFilas(env, env.AGENDA_SHEET_ID, CONFIG.hoja.pestana);
+    const posicion = filas.findIndex((f) => f[COL.idEvento] === idEvento);
+    if (posicion < 0) nota = "No encontré la fila de esta cita en la hoja «Northik · Agenda». Actualízala a mano.";
+    else await actualizarCeldas(env, env.AGENDA_SHEET_ID, CONFIG.hoja.pestana, posicion, cambios);
+  } catch (e) {
+    console.error("No se pudo actualizar la hoja de la agenda:", (e && e.stack) || e);
+    nota = "No se pudo actualizar la hoja «Northik · Agenda». Actualízala a mano. Error: " + String((e && e.message) || e).slice(0, 300);
+  }
+  try {
+    await avisoInterno(env, asunto, [...lineas, ...(nota ? ["", nota] : [])]);
+  } catch (e) {
+    console.error("No se pudo enviar el aviso:", (e && e.stack) || e);
+  }
+}
+
+async function _cita(request, env, ctx, json) {
+  if (!(await dentroDelLimite(request, env))) return json({ ok: false, error: MSG_LIMITE }, 429);
+  if (!(request.headers.get("content-type") || "").includes("application/json")) return json({ ok: false, estado: "invalido" }, 415);
+  const texto = await request.text();
+  if (texto.length > 1000) return json({ ok: false, estado: "invalido" }, 413);
+  let body;
+  try { body = JSON.parse(texto); } catch { return json({ ok: false, estado: "invalido" }, 400); }
+  if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some((k) => !["codigo", "accion", "inicio"].includes(k))
+    || !ACCIONES.has(body.accion)) return json({ ok: false, estado: "invalido" }, 400);
+
+  const idEvento = await verificar(env, body.codigo);
+  if (!idEvento) return json({ ok: false, estado: "invalido" }, 400);
+
+  const ev = await obtenerEvento(env, CONFIG.calendarioId, idEvento);
+  const estado = estadoDe(ev);
+  if (estado === "invalido") return json({ ok: false, estado }, 400);
+  if (estado !== "activa") return json({ ok: body.accion === "ver", estado });
+
+  const antes = etiquetaFecha(new Date(ev.start.dateTime));
+  if (body.accion === "ver") return json({ ok: true, estado, ...antes });
+
+  const persona = personaDe(ev);
+  const datosPersona = [`Correo: ${persona.correo}`, `WhatsApp: ${persona.whatsapp}`];
+
+  if (body.accion === "cancelar") {
+    await cancelarEvento(env, CONFIG.calendarioId, idEvento);
+    const tarea = registrarCambio(env, idEvento, { [COL.estado]: "Cancelada" },
+      `Agenda: ${persona.nombre} canceló su llamada`,
+      [`${persona.nombre} canceló su llamada del ${antes.dia} a las ${antes.hora}.`, "La hora quedó libre en la agenda.", "", ...datosPersona]);
+    if (ctx?.waitUntil) ctx.waitUntil(tarea); else await tarea;
+    return json({ ok: true, estado: "cancelada", ...antes });
+  }
+
+  // Cambiar: la hora nueva cumple las mismas reglas que una reserva nueva y tiene que seguir libre.
+  if (typeof body.inicio !== "string") return json({ ok: false, error: MSG_CITA_ERROR }, 400);
+  const nueva = citasPosibles(CONFIG).find((c) => c.inicio.getTime() === Date.parse(body.inicio));
+  if (!nueva) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
+  const ocupados = await horasOcupadas(env, CONFIG.calendarioId, nueva.inicio, nueva.fin);
+  if (seCruza(nueva, ocupados)) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
+
+  await moverEvento(env, CONFIG.calendarioId, idEvento, nueva.inicio, nueva.fin, CONFIG.zonaHoraria);
+  const despues = etiquetaFecha(nueva.inicio);
+  const tarea = registrarCambio(env, idEvento,
+    { [COL.fecha]: nueva.fecha, [COL.hora]: despues.hora, [COL.estado]: "Reprogramada" },
+    `Agenda: ${persona.nombre} cambió su llamada`,
+    [`${persona.nombre} cambió su llamada.`, `Antes: ${antes.dia} a las ${antes.hora}.`, `Ahora: ${despues.dia} a las ${despues.hora}.`, "", ...datosPersona]);
+  if (ctx?.waitUntil) ctx.waitUntil(tarea); else await tarea;
+  return json({ ok: true, estado: "activa", ...despues });
 }
 
 // Errores de Google o de red: mensaje propio de la agenda, no el del formulario de contacto.
@@ -194,3 +301,12 @@ const conRespaldo = (fn) => async (...args) => {
 };
 export const horarios = conRespaldo(_horarios);
 export const reservar = conRespaldo(_reservar);
+export const cita = async (...args) => {
+  const json = args.at(-1);
+  try {
+    return await _cita(...args);
+  } catch (e) {
+    console.error("Error en la agenda (cita):", (e && e.stack) || e);
+    return json({ ok: false, error: MSG_CITA_ERROR }, 502);
+  }
+};

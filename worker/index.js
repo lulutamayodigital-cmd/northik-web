@@ -2,7 +2,7 @@
 // - /api/contacto: recibe el formulario «Cuéntanos tu proyecto».
 //     Guarda el mensaje en la tabla `contactos` y la prueba de aceptación en `aceptaciones`
 //     (base D1, binding DB). Avisa por correo (binding EMAIL).
-// - /api/agenda/horarios y /api/agenda/reservar: agenda de llamadas con Google Calendar (worker/agenda.js).
+// - /api/agenda/horarios, /api/agenda/reservar y /api/agenda/cita: agenda de llamadas con Google Calendar (worker/agenda.js).
 //     Las citas no se guardan en D1: solo existen como eventos en Google Calendar.
 // - /api/creadores: registro de creadores de northik.ai/creadores (worker/creadores.js).
 //     Fila en la hoja privada «Northik · Creadores»; pantallazos en R2 (privado); respaldo en D1 si la hoja falla.
@@ -10,7 +10,7 @@
 // - /admin/creadores/<registro>/<pantallazo>: pantallazos de los creadores, protegidos con Cloudflare Access.
 // - Todo lo demás: páginas estáticas del sitio.
 import { EmailMessage } from "cloudflare:email";
-import { horarios, reservar, borrarAgendaVencida } from "./agenda.js";
+import { horarios, reservar, cita, borrarAgendaVencida } from "./agenda.js";
 import { registrar, archivoCreador, borrarCreadoresVencidos, HOJA_CREADORES } from "./creadores.js";
 import { VERSION_DOCUMENTOS } from "./documentos.js"; // súbela cada vez que cambien los Términos o la Política de datos
 const MEDIO = "Formulario web northik.ai";
@@ -64,6 +64,10 @@ export default {
         if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
         return await reservar(request, env, ctx, json);
       }
+      if (url.pathname === "/api/agenda/cita") {
+        if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
+        return await cita(request, env, ctx, json);
+      }
       if (url.pathname === "/api/creadores") {
         if (request.method !== "POST") return json({ ok: false, error: "Método no permitido." }, 405);
         return await registrar(request, env, ctx, json);
@@ -73,6 +77,14 @@ export default {
         const { _simulado } = await import("./google.js");
         const filas = Object.entries(_simulado.hojas).filter(([k]) => k.endsWith("/" + HOJA_CREADORES.pestana)).flatMap(([, f]) => f);
         return json({ ok: true, columnas: HOJA_CREADORES.columnas, filas });
+      }
+      // Solo en el computador (GOOGLE_MOCK en .dev.vars): crea una cita simulada que ya pasó y devuelve su enlace.
+      if (url.pathname === "/api/agenda/simulado-pasada" && env.GOOGLE_MOCK && ["localhost", "127.0.0.1"].includes(url.hostname)) {
+        const { _simulado, MARCA_AGENDA } = await import("./google.js");
+        const { nuevoIdEvento, enlaceCita } = await import("./enlace-cita.js");
+        const id = nuevoIdEvento();
+        _simulado.crearPasada({ id, extendedProperties: { private: { [MARCA_AGENDA.clave]: MARCA_AGENDA.valor } } });
+        return json({ ok: true, enlace: await enlaceCita(env, url.origin, id) });
       }
       if (url.pathname.startsWith("/admin/creadores/")) {
         if (request.method !== "GET") return json({ ok: false, error: "Método no permitido." }, 405);
