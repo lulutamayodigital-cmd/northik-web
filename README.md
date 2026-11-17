@@ -40,6 +40,8 @@ Para probar en el computador: `npx wrangler dev` (abre http://localhost:8787).
 
 ## Registro de creadores (`/creadores/`)
 
+La documentación técnica está en el repositorio privado de Northik Match.
+
 - Página: `creadores/index.html`. Opciones del formulario (nichos, tarifas) y rangos del resumen: `creadores/config.js`.
   Los rangos de interacción por tamaño son los de Northik Match (`influencer-intelligence`: `ii/metrics.py`, `TAMANOS` y `RANGO_ER`). Si cambian allá, cámbialos aquí.
 - El resumen del perfil se calcula en el navegador del creador, solo con las cifras que escribió (`creadores/resumen.js`).
