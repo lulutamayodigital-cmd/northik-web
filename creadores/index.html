@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Registro de creadores · Northik Match</title>
+<meta name="description" content="Regístrate gratis en Northik Match. Sin comisión: tu tarifa es toda tuya y la marca o agencia te paga directo.">
+<meta name="theme-color" content="#1E1A17">
+<meta property="og:title" content="Registro de creadores · Northik Match">
+<meta property="og:description" content="Regístrate gratis en Northik Match. Sin comisión: tu tarifa es toda tuya y la marca o agencia te paga directo.">
+<meta property="og:image" content="https://northik.ai/og.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fuentes/fuentes.css">
+<style>
+:root{
+ /* Paleta del manual de marca */
+ --grafito:#1E1A17;--arena:#EFE8DD;--arena-clara:#F7F2EA;--piedra:#CFC4B4;--gris:#5E554C;--humo:#8A7F74;
+ --terracota:#B9512C;--terracota-p:#9A4322;--ocre:#D4A04A;--salvia:#7D8B74;--pizarra:#3E4C59;
+ /* Superficies: arena muy suave sobre grafito (sigue siendo la paleta del manual) */
+ --capa:linear-gradient(rgba(239,232,221,.04),rgba(239,232,221,.04)),#1E1A17;
+ --capa2:linear-gradient(rgba(239,232,221,.07),rgba(239,232,221,.07)),#1E1A17;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#1E1A17;color:var(--arena)}
+body{font-family:'Schibsted Grotesk',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+header.wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:24px;padding-bottom:16px}
+.logo{width:auto;height:26px;display:block}
+.mono{font-family:'IBM Plex Mono',Consolas,monospace}
+a{color:var(--ocre)} a:hover{color:var(--arena)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.subir:focus-within{outline:2px solid var(--ocre);outline-offset:3px;border-radius:6px}
+.back{font-size:14px;text-decoration:none;color:var(--ocre);font-family:'IBM Plex Mono',Consolas,monospace}
+@media (max-width:420px){.back{font-size:12.5px;white-space:nowrap}.logo{height:22px}}
+.back:hover{color:var(--arena)}
+main.wrap{flex:1;display:flex;flex-direction:column;gap:28px;padding-top:8px;padding-bottom:56px}
+.paso{display:flex;flex-direction:column;gap:32px}
+.paso[hidden]{display:none!important}
+.intro{display:flex;flex-direction:column;gap:16px}
+.kicker{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ocre)}
+h1{margin:0;font-size:clamp(34px,8vw,58px);font-weight:800;letter-spacing:-.04em;line-height:1.02;text-wrap:balance}
+h1 span{color:var(--ocre)}
+.lead{margin:0;font-size:17px;line-height:1.55;color:var(--piedra);max-width:460px}
+.puntos{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:14px;max-width:460px}
+.puntos li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;font-size:16px;line-height:1.5;color:var(--arena)}
+.puntos b{font-family:'IBM Plex Mono',Consolas,monospace;font-weight:500;font-size:13px;color:var(--ocre);border:1.5px solid var(--gris);border-radius:8px;height:30px;display:grid;place-items:center}
+.quien{margin:4px 0 0;font-size:14px;line-height:1.55;color:var(--piedra);max-width:460px}
+form{display:flex;flex-direction:column;gap:18px;min-width:0}
+.grupo{display:flex;flex-direction:column;gap:18px;border:0;margin:0;padding:0;min-width:0}
+.sep{border:0;border-top:1px solid var(--gris);margin:6px 0}
+.grupo>legend{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ocre);font-family:'IBM Plex Mono',Consolas,monospace;margin-bottom:4px;padding:0}
+.grupo>legend small{letter-spacing:0;text-transform:none;color:var(--piedra);font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:13px}
+.porque{margin:0;padding:14px 16px;border-left:3px solid var(--ocre);background:var(--capa);border-radius:0 10px 10px 0;font-size:15px;line-height:1.55;color:var(--arena)}
+.ayuda{margin:-8px 0 0;font-size:14px;line-height:1.5;color:var(--piedra)}
+.f{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dos{display:grid;grid-template-columns:1fr;gap:18px}
+label{font-size:14px;font-weight:500;color:var(--arena)}
+label small,.f small{color:var(--piedra);font-weight:400}
+input,select{font:inherit;font-size:16px;color:var(--arena);background-color:var(--grafito);border:1.5px solid var(--humo);border-radius:10px;padding:13px 14px;width:100%;transition:border-color .2s}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ocre) 50%),linear-gradient(135deg,var(--ocre) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 12px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:34px}
+select:invalid{color:var(--humo)}
+option{color:var(--arena)}
+input:focus,select:focus{outline:none;border-color:var(--ocre)}
+input::placeholder{color:var(--humo)}
+.arroba{position:relative}
+.arroba::before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--piedra);font-size:16px;pointer-events:none}
+.arroba input{padding-left:32px}
+.tel{display:grid;grid-template-columns:118px 1fr;gap:10px}
+.subir{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 16px;border:1.5px dashed var(--humo);border-radius:12px;background:var(--capa);text-align:center;cursor:pointer;transition:border-color .2s}
+.subir:hover{border-color:var(--humo)}
+.subir input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;padding:0}
+.subir strong{font-size:15px;font-weight:500}
+.subir span{font-size:13px;color:var(--piedra)}
+.archivos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.archivos li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--gris);border-radius:10px;background:var(--capa2);font-size:14px;color:var(--piedra);min-width:0}
+.archivos img{width:36px;height:36px;object-fit:cover;border-radius:6px;flex:0 0 36px}
+.archivos .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.archivos button{font:inherit;font-size:13px;background:none;border:0;color:var(--ocre);cursor:pointer;padding:6px}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;color:var(--piedra);font-weight:400}
+.check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:var(--terracota);padding:0}
+.trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.btn{font:inherit;min-height:54px;padding:0 26px;border:0;border-radius:10px;background:var(--terracota);color:var(--arena-clara);font-size:19px;font-weight:700;cursor:pointer;transition:filter .2s;width:100%;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
+.btn:hover{filter:brightness(.92);color:var(--arena-clara)} .btn[disabled]{opacity:.5;cursor:not-allowed}
+.msg{margin:0;font-size:15px;line-height:1.5}
+.msg.err{color:var(--arena-clara);border-left:3px solid var(--terracota);padding-left:12px}
+.msg:empty{display:none}
+/* Resumen */
+.ok{display:flex;flex-direction:column;gap:14px}
+.ok .marca{width:44px;height:44px;border-radius:50%;background:var(--ocre);display:grid;place-items:center}
+.ok h2{margin:0;font-size:clamp(28px,6vw,40px);letter-spacing:-.03em;line-height:1.08;font-weight:800;text-wrap:balance}
+.ok p{margin:0;color:var(--piedra);line-height:1.6;font-size:16px;max-width:460px}
+.resumen{display:flex;flex-direction:column;gap:0;border:1px solid var(--gris);border-radius:14px;background:var(--capa);overflow:hidden}
+.resumen>header{padding:18px 22px;border-bottom:1px solid var(--gris);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.resumen>header h3{margin:0;font-size:18px;font-weight:700}
+.resumen>header span{font-size:12px;color:var(--piedra);letter-spacing:.1em;text-transform:uppercase}
+.bloque{padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.bloque+.bloque{border-top:1px solid var(--gris)}
+.etq{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--piedra)}
+.cifra{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cifra b{font-weight:800;font-size:46px;letter-spacing:-.04em;line-height:1}
+.cifra small{font-size:14px;color:var(--piedra)}
+.ver{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:14px;line-height:1.4;padding:7px 12px;border-radius:999px;border:1px solid var(--gris);background:var(--capa2)}
+.ver i{width:9px;height:9px;border-radius:50%;flex:0 0 9px;background:var(--humo)}
+.ver[data-nivel="dentro"] i{background:var(--ocre)}
+.ver[data-nivel="encima"] i{background:var(--salvia)}
+.ver[data-nivel="debajo"] i{background:var(--humo)}
+.ver[data-nivel="revisar"] i{background:var(--terracota)}
+.escala{position:relative;height:30px;margin-top:4px}
+.escala .riel{position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:var(--gris)}
+.escala .tipico{position:absolute;top:12px;height:6px;border-radius:3px;background:rgba(212,160,74,.45)}
+.escala .yo{position:absolute;top:6px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--ocre);border:3px solid var(--grafito)}
+.escala-txt{display:flex;justify-content:space-between;font-size:12px;color:var(--piedra)}
+.texto{margin:0;font-size:15px;line-height:1.55;color:var(--piedra)}
+.avance{height:8px;border-radius:4px;background:var(--gris);overflow:hidden}
+.avance i{display:block;height:100%;background:var(--ocre);border-radius:4px}
+.faltan{margin:4px 0 0;padding-left:20px;color:var(--piedra);font-size:15px;line-height:1.6}
+.nota{margin:0;padding:16px 22px;border-top:1px solid var(--gris);font-size:13px;line-height:1.55;color:var(--piedra)}
+footer.wrap{display:flex;flex-direction:column;gap:10px;padding-top:24px;padding-bottom:28px;border-top:1px solid var(--gris);font-size:13px;color:var(--piedra)}
+footer a{color:inherit}
+@media (min-width:600px){.dos{grid-template-columns:1fr 1fr}}
+@media (min-width:900px){
+ .wrap{padding:0 24px}
+ header.wrap{padding-top:32px;padding-bottom:32px}
+ .logo{height:30px}
+ main.wrap{padding-top:16px;padding-bottom:72px}
+ .paso{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:72px;align-items:start}
+ .intro{position:sticky;top:32px}
+ #enviar{width:auto;align-self:flex-start}
+ footer.wrap{flex-direction:row;justify-content:space-between;flex-wrap:wrap;font-size:14px}
+}
+
+/* ---------- Movimiento (manual de marca: «Suave al llegar», «Con propósito») ----------
+   Solo se anima transform y opacity. Con «Reducir movimiento» todo se ve en su estado final.
+   Los estados iniciales ocultos dependen de .js (lo pone movimiento.js), así sin JavaScript todo se ve. */
+:root{--e:cubic-bezier(.2,.7,.2,1)}
+.inicio{display:flex;flex-direction:column;gap:96px}
+.inicio[hidden]{display:none!important}
+.sec{margin:6px 0 0;font-size:clamp(28px,6.4vw,44px);font-weight:800;letter-spacing:-.035em;line-height:1.06;text-wrap:balance}
+.cab{display:flex;flex-direction:column;gap:2px;margin-bottom:28px;max-width:620px}
+.ejemplo{display:inline-block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ocre);background:rgba(212,160,74,.14);border:1px solid rgba(212,160,74,.5);padding:3px 9px;border-radius:999px;line-height:1.3}
+/* Portada */
+.hero{display:flex;flex-direction:column;gap:28px}
+.hero-acc{display:flex;flex-direction:column;gap:18px}
+.hero-txt{display:flex;flex-direction:column;gap:18px}
+.hechos{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.hechos li{font-size:12.5px;color:var(--arena);border:1px solid var(--gris);border-radius:999px;padding:6px 12px;background:var(--capa)}
+.abanico{position:relative;width:100%;max-width:380px;height:372px;margin:0 auto}
+.abanico>.ejemplo{position:absolute;top:0;left:0;z-index:4}
+.ejemplo-ia{font-size:12px;font-weight:500;letter-spacing:.12em;color:var(--arena);background:rgba(212,160,74,.2);border-color:var(--ocre);padding:5px 11px}
+.cel{position:absolute;top:70px;left:50%;width:120px;height:240px;margin-left:-60px;border-radius:22px;background:var(--grafito);border:3px solid var(--gris);overflow:hidden;box-shadow:0 20px 44px rgba(0,0,0,.5)}
+.cel .pant{position:absolute;inset:0}
+.cel img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+.cel::after{content:"";position:absolute;inset:auto 0 0 0;height:38%;background:linear-gradient(180deg,transparent,rgba(30,26,23,.55));pointer-events:none}
+.cel .usr{z-index:2}
+.cel .notch{position:absolute;top:6px;left:50%;width:36px;height:8px;margin-left:-18px;border-radius:9px;background:var(--grafito);z-index:2}
+.cel .usr{position:absolute;left:10px;bottom:11px;font-size:10px;font-weight:700;color:var(--arena-clara);text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.cel.c{top:50px;z-index:2}
+.cel.l .usr,.cel.r .usr{font-size:8.5px;bottom:22px}
+.cel.l .usr{left:7px}
+.cel.r .usr{left:auto;right:10px}
+.cel.l{margin-left:-158px;transform:rotate(-9deg)}
+.cel.r{margin-left:38px;transform:rotate(9deg)}
+.chip{position:absolute;z-index:3;background:rgba(30,26,23,.95);border:1px solid var(--gris);border-radius:10px;padding:7px 10px;font-size:11px;line-height:1.25;color:var(--piedra);box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.chip b{display:block;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--arena)}
+.chip.c1{left:0;top:178px}
+.chip.c2{right:0;top:196px}
+.chip.c3{left:50%;bottom:0;margin-left:-58px;width:116px}
+@media (max-width:340px){.cel.r{display:none}.cel.l{margin-left:-130px}}
+@media (prefers-reduced-motion:no-preference){
+ .cel.l{animation:abL .7s var(--e) .1s both}
+ .cel.r{animation:abR .7s var(--e) .1s both}
+ .cel.c{animation:abC .7s var(--e) both,flota 6s ease-in-out 1.4s infinite}
+ .chip{animation:pop .45s var(--e) both}
+ .chip.c1{animation-delay:.8s}.chip.c2{animation-delay:1.05s}.chip.c3{animation-delay:1.3s}
+ html{scroll-behavior:smooth}
+}
+@keyframes abL{from{opacity:0;transform:rotate(0) translateX(60px)}}
+@keyframes abR{from{opacity:0;transform:rotate(0) translateX(-60px)}}
+@keyframes abC{from{opacity:0;transform:translateY(40px)}}
+@keyframes flota{50%{transform:translateY(-7px)}}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.92)}}
+/* Tarjetas de dolor */
+.dolores{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.dolor{background:var(--capa);border:1.5px solid var(--gris);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:6px}
+.dolor span{font-size:12px;color:var(--ocre)}
+.dolor strong{font-size:19px;font-weight:700;line-height:1.3;letter-spacing:-.01em}
+.dolor p{margin:0;font-size:15px;line-height:1.5;color:var(--piedra)}
+@media (prefers-reduced-motion:no-preference){
+ .js .dolor{opacity:0;transform:translateY(20px);transition:opacity .55s var(--e),transform .55s var(--e)}
+ .js .dolores.ver .dolor{opacity:1;transform:none}
+ .js .dolores.ver .dolor:nth-child(2){transition-delay:.15s}
+ .js .dolores.ver .dolor:nth-child(3){transition-delay:.3s}
+}
+/* Tarjeta «Así ven las marcas tu perfil» */
+.perfil{display:flex;flex-direction:column}
+.tarjeta{position:sticky;top:10px;z-index:2;background:var(--capa2);border:1.5px solid var(--gris);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 14px 36px rgba(0,0,0,.45);font-size:13px}
+.t-cab{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.t-cab h3{margin:0;font-size:15px;font-weight:700}
+.tarjeta .fila{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tarjeta .etq{font-size:10.5px;color:var(--ocre)}
+.t-num{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.t-pct{font-size:12px;color:var(--piedra)}
+.t-avance{height:7px;border-radius:9px;background:var(--gris);overflow:hidden;margin-top:6px}
+.t-avance i{display:block;height:100%;width:100%;background:var(--ocre);border-radius:9px;transform-origin:left;transform:scaleX(var(--av,1))}
+.t-barras{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.t-barras div{display:grid;grid-template-columns:70px 1fr 38px;gap:8px;align-items:center;color:var(--piedra);font-size:12.5px}
+.t-barras div span:last-child{text-align:right}
+.t-barras s{display:block;height:7px;border-radius:9px;background:var(--terracota);text-decoration:none;width:calc(var(--v) * 2%);max-width:100%;transform-origin:left}
+.t-edad{display:flex;align-items:flex-end;gap:8px;height:52px;margin-top:6px}
+.t-edad div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;font-size:10.5px;color:var(--piedra)}
+.t-edad s{display:block;width:100%;height:calc(var(--v) * 1%);border-radius:4px 4px 0 0;background:var(--salvia);text-decoration:none;transform-origin:bottom;max-height:calc(100% - 16px)}
+.t-genero{display:flex;height:9px;border-radius:9px;overflow:hidden;background:var(--gris);margin-top:10px}
+.t-genero i{display:block;height:100%;width:calc(var(--v) * 1%);transform-origin:left}
+.t-genero .m,.t-leyenda .m{background:var(--ocre)}.t-genero .h,.t-leyenda .h{background:var(--salvia)}
+.t-leyenda{display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--piedra)}
+.t-leyenda i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.explica{min-height:52vh;padding:40px 4px 0}
+.explica[data-paso="1"]{padding-top:48px}
+.explica:last-child{min-height:38vh}
+.explica h3{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.explica p{margin:0;font-size:16px;line-height:1.55;color:var(--piedra);max-width:440px}
+@media (prefers-reduced-motion:no-preference){
+ .js .parte{opacity:.28;transition:opacity .5s}
+ .js .parte.on{opacity:1}
+ .js .t-avance i,.js .t-barras s,.js .t-genero i{transform:scaleX(0);transition:transform .8s var(--e)}
+ .js .t-edad s{transform:scaleY(0);transition:transform .7s var(--e)}
+ .js .parte.on .t-avance i,.js .parte.on .t-barras s,.js .parte.on .t-genero i{transform:scaleX(1)}
+ .js .parte.on .t-edad s{transform:scaleY(1)}
+ .js .parte.on .t-barras div:nth-child(2) s,.js .parte.on .t-edad div:nth-child(2) s{transition-delay:.1s}
+ .js .parte.on .t-barras div:nth-child(3) s,.js .parte.on .t-edad div:nth-child(3) s{transition-delay:.2s}
+ .js .parte.on .t-edad div:nth-child(4) s,.js .parte.on .t-genero{transition-delay:.3s}
+}
+/* Pasos con línea */
+.pasos{position:relative;padding-left:56px}
+.pasos ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:72px}
+.pasos li{position:relative}
+.pasos .num{position:absolute;left:-56px;top:-2px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:13px;border:2px solid var(--ocre);background:var(--ocre);color:#1E1A17;z-index:2;transition:background .35s,border-color .35s,color .35s}
+.pasos h3{margin:0 0 6px;font-size:21px;font-weight:700;letter-spacing:-.02em;transition:color .35s}
+.pasos p{margin:0;font-size:16px;line-height:1.55;color:var(--piedra);max-width:460px}
+.riel{position:absolute;left:17px;top:16px;bottom:var(--fin,0);width:2px;background:var(--gris)}
+.trazo{position:absolute;inset:0;background:var(--ocre);transform-origin:top;transform:scaleY(var(--pr,1))}
+@media (prefers-reduced-motion:no-preference){
+ .js .pasos li:not(.on) .num{background:#1E1A17;border-color:var(--gris);color:var(--piedra)}
+ .js .pasos li:not(.on) h3{color:var(--piedra)}
+}
+.registro{scroll-margin-top:16px}
+@media (min-width:900px){
+ .inicio{gap:140px}
+ .hero{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);grid-template-rows:auto auto;column-gap:56px;row-gap:24px;align-items:end;min-height:70vh}
+ .hero-txt{grid-column:1;grid-row:1}
+ .hero-acc{grid-column:1;grid-row:2;align-self:start}
+ .abanico{grid-column:2;grid-row:1/span 2;align-self:center}
+ .hero-cta{width:auto;align-self:flex-start}
+ .abanico{max-width:460px;height:500px}
+ .cel{width:160px;height:320px;margin-left:-80px;border-radius:28px}
+ .cel.l{margin-left:-210px}.cel.r{margin-left:50px}
+ .cel .usr{font-size:12px}
+ .chip{font-size:12px;padding:9px 12px}.chip b{font-size:21px}
+ .chip.c3{margin-left:-70px;width:140px}
+ .chip.c1{top:230px}.chip.c2{top:290px}
+ .dolores{grid-template-columns:repeat(3,1fr);gap:18px}
+ .perfil{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);column-gap:72px}
+ .tarjeta{grid-column:2;grid-row:1/span 4;top:18vh;align-self:start;padding:22px 24px;gap:14px;font-size:14px}
+ .t-cab h3{font-size:18px}.t-num{font-size:40px}.t-edad{height:80px}
+ .explica{grid-column:1;min-height:62vh;padding-top:18vh}
+ .explica[data-paso="1"]{padding-top:8vh}
+ .explica h3{font-size:28px}
+}
+</style>
+</head>
+<body>
+<header class="wrap"><a href="/" aria-label="Northik Match, ir al inicio de Northik AI"><img src="/creadores/northik-match-claro.svg" alt="Northik Match" width="198" height="30" class="logo"></a><a class="back mono" href="/">← Volver al inicio</a></header>
+<main class="wrap">
+
+<div class="inicio" id="paso1">
+
+ <!-- Portada: abanico de celulares de ejemplo -->
+ <section class="hero" aria-labelledby="t1">
+  <div class="hero-txt">
+   <span class="kicker mono">Para creadores</span>
+   <h1 id="t1">Tu audiencia real también cuenta<span>.</span></h1>
+   <p class="lead">Muchas marcas eligen creadores solo por el número de seguidores y una buena foto. Con datos, quien tiene una audiencia real tiene más argumentos.</p>
+  </div>
+  <div class="abanico" role="img" aria-label="Ejemplo creado con IA: tres perfiles de creadores ficticios con sus seguidores, vistas e interacciones">
+   <span class="ejemplo ejemplo-ia mono" aria-hidden="true">Ejemplo · Creado con IA</span>
+   <div class="cel l" aria-hidden="true"><i class="notch"></i><div class="pant"><img src="/creadores/ejemplo-cocina.webp" alt="" width="400" height="715" decoding="async"></div><span class="usr">@cocina.ejemplo</span></div>
+   <div class="cel r" aria-hidden="true"><i class="notch"></i><div class="pant"><img src="/creadores/ejemplo-viajes.webp" alt="" width="400" height="715" decoding="async"></div><span class="usr">@viajes.ejemplo</span></div>
+   <div class="cel c" aria-hidden="true"><i class="notch"></i><div class="pant"><img src="/creadores/ejemplo-estilo.webp" alt="" width="400" height="715" fetchpriority="high"></div><span class="usr">@estilo.ejemplo</span></div>
+   <div class="chip c1" aria-hidden="true">Seguidores<b>48,3 mil</b></div>
+   <div class="chip c2" aria-hidden="true">Vistas por reel<b>21 mil</b></div>
+   <div class="chip c3" aria-hidden="true">Interacciones<b>2,1 mil</b></div>
+  </div>
+  <div class="hero-acc">
+   <ul class="hechos mono" aria-label="Lo que debes saber">
+    <li>Gratis</li><li>Sin comisión</li><li>Tu tarifa solo se comparte con tu autorización</li>
+   </ul>
+   <a class="btn hero-cta" href="#registro">Registrarme gratis</a>
+  </div>
+ </section>
+
+ <!-- Tarjetas de dolor -->
+ <section class="seccion" aria-labelledby="t-dolor">
+  <div class="cab"><span class="kicker mono">Lo que pasa hoy</span><h2 class="sec" id="t-dolor">Tus seguidores no muestran quién es tu audiencia</h2></div>
+  <ul class="dolores" id="dolores">
+   <li class="dolor"><span class="mono">01</span><strong>Las marcas no saben a quién le hablas.</strong><p>Ven tus seguidores, pero no en qué ciudades están ni qué edad tienen.</p></li>
+   <li class="dolor"><span class="mono">02</span><strong>Te piden las mismas cifras una y otra vez.</strong><p>Cada campaña empieza con pantallazos por WhatsApp.</p></li>
+   <li class="dolor"><span class="mono">03</span><strong>Tus estadísticas quedan en pantallazos sueltos.</strong><p>Nadie las ve juntas.</p></li>
+  </ul>
+ </section>
+
+ <!-- Tarjeta de perfil que se llena al bajar -->
+ <section class="seccion" aria-labelledby="t-porque">
+  <div class="cab"><span class="kicker mono">Para qué sirven tus datos</span><h2 class="sec" id="t-porque">Por qué pedimos tus estadísticas</h2></div>
+  <div class="perfil" id="perfil">
+   <div class="tarjeta" id="tarjeta" role="img" aria-label="Ejemplo de tarjeta «Así ven las marcas tu perfil»: 48.300 seguidores, perfil completo al 100 %, audiencia por ciudad, edad y género">
+    <div class="t-cab" aria-hidden="true"><h3>Así ven las marcas tu perfil</h3><span class="ejemplo mono">Ejemplo</span></div>
+    <div class="parte" data-parte="1" aria-hidden="true"><div class="fila"><span class="etq mono">Seguidores</span><b class="t-num" data-cuenta="48300">48.300</b></div></div>
+    <div class="parte" data-parte="2" aria-hidden="true"><div class="fila"><span class="etq mono">Perfil completo</span><span class="mono t-pct" data-pct>100 %</span></div><div class="t-avance"><i></i></div></div>
+    <div class="parte" data-parte="3" aria-hidden="true"><span class="etq mono">Ciudades</span>
+     <div class="t-barras"><div><span>Medellín</span><s style="--v:41"></s><span>41 %</span></div><div><span>Bogotá</span><s style="--v:22"></s><span>22 %</span></div><div><span>Cali</span><s style="--v:9"></s><span>9 %</span></div></div></div>
+    <div class="parte" data-parte="4" aria-hidden="true"><span class="etq mono">Edad y género</span>
+     <div class="t-edad"><div><s style="--v:31"></s><span>18-24</span></div><div><s style="--v:100"></s><span>25-34</span></div><div><s style="--v:54"></s><span>35-44</span></div><div><s style="--v:23"></s><span>45+</span></div></div>
+     <div class="t-genero"><i class="m" style="--v:68"></i><i class="h" style="--v:32"></i></div>
+     <div class="t-leyenda mono"><span><i class="m"></i>Mujeres 68 %</span><span><i class="h"></i>Hombres 32 %</span></div></div>
+   </div>
+   <div class="explica" data-paso="1"><h3>Tus seguidores</h3><p>Es lo primero que mira una marca, pero no lo único.</p></div>
+   <div class="explica" data-paso="2"><h3>Tus vistas e interacciones</h3><p>Con ellas tu perfil queda completo y puede entrar en la evaluación de cada campaña.</p></div>
+   <div class="explica" data-paso="3"><h3>Dónde está tu audiencia</h3><p>Una marca con tiendas en una ciudad busca audiencia en esa ciudad. Por eso pedimos pantallazos de tu audiencia.</p></div>
+   <div class="explica" data-paso="4"><h3>Quién te ve</h3><p>La edad y el género de tu audiencia muestran si le hablas al público de la marca.</p></div>
+  </div>
+ </section>
+
+ <!-- Pasos unidos por una línea que se dibuja al bajar -->
+ <section class="seccion" aria-labelledby="t-pasos">
+  <div class="cab"><span class="kicker mono">Cómo funciona</span><h2 class="sec" id="t-pasos">Tres pasos</h2></div>
+  <div class="pasos" id="pasos">
+   <span class="riel" aria-hidden="true"><span class="trazo"></span></span>
+   <ol>
+   <li><span class="num mono" aria-hidden="true">1</span><h3>Te registras</h3><p>Gratis: tus datos, tus cifras y al menos un pantallazo de tu audiencia.</p></li>
+   <li><span class="num mono" aria-hidden="true">2</span><h3>Tu perfil entra en la evaluación de campañas</h3><p>Cuando una marca o agencia busca creadores como tú.</p></li>
+   <li><span class="num mono" aria-hidden="true">3</span><h3>Te escribimos si encajas</h3><p>Tu tarifa solo se comparte con tu autorización.</p></li>
+   </ol>
+  </div>
+ </section>
+
+ <!-- Formulario de registro -->
+ <section class="paso registro" id="registro" aria-labelledby="t-registro">
+  <div class="intro">
+   <span class="kicker mono">Registro</span>
+   <h2 class="sec" id="t-registro">Regístrate gratis</h2>
+   <ul class="puntos">
+    <li><b aria-hidden="true">01</b><span>Registrarte es gratis y sin comisión: tu tarifa es toda tuya y la marca o agencia te paga directo.</span></li>
+    <li><b aria-hidden="true">02</b><span>Tu perfil entra en la evaluación cuando una marca o agencia busca creadores como tú.</span></li>
+    <li><b aria-hidden="true">03</b><span>Con tus estadísticas, las marcas pueden elegirte con datos.</span></li>
+   </ul>
+   <p class="quien">Northik Match es el servicio de Northik AI que ayuda a marcas y agencias a elegir creadores con datos.</p>
+  </div>
+
+  <form id="formulario" novalidate>
+   <fieldset class="grupo">
+    <legend>Tus datos</legend>
+    <div class="f"><label for="nombre">Nombre</label><input id="nombre" name="nombre" autocomplete="name" required maxlength="80"></div>
+    <div class="dos">
+     <div class="f"><label for="instagram">Usuario de Instagram</label><div class="arroba"><input id="instagram" name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="tuusuario"></div></div>
+     <div class="f"><label for="tiktok">Usuario de TikTok</label><div class="arroba"><input id="tiktok" name="tiktok" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="tuusuario"></div></div>
+    </div>
+    <p class="ayuda">Escribe al menos uno de los dos.</p>
+    <div class="dos">
+     <div class="f"><label for="ciudad">Ciudad</label><input id="ciudad" name="ciudad" autocomplete="address-level2" required maxlength="60" placeholder="Medellín"></div>
+     <div class="f"><label for="nicho">Nicho</label><select id="nicho" name="nicho" required><option value="" disabled selected>Elige uno</option></select></div>
+    </div>
+    <div class="f"><label for="tarifa">Rango de tarifa por publicación <small>(pesos colombianos)</small></label><select id="tarifa" name="tarifa" required><option value="" disabled selected>Elige un rango</option></select></div>
+    <div class="f"><label for="correo">Correo</label><input id="correo" name="correo" type="email" inputmode="email" autocomplete="email" required maxlength="160"></div>
+    <div class="f"><label for="telefono">WhatsApp</label>
+     <div class="tel">
+      <select id="pais" name="pais" aria-label="País del número de WhatsApp"></select>
+      <input id="telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel-national" required maxlength="20" placeholder="300 000 0000">
+     </div></div>
+   </fieldset>
+   <hr class="sep">
+   <fieldset class="grupo">
+    <legend>Tus estadísticas</legend>
+    <p class="porque">Las marcas eligen con datos. Por eso pedimos tus estadísticas: con ellas, tu perfil puede entrar en la evaluación de cada campaña.</p>
+    <p class="ayuda" style="margin-top:-4px">Escribe solo números, sin puntos. Al registrarte verás un resumen de tu perfil.</p>
+    <div class="f"><label for="red_cifras">¿De qué red son estas cifras?</label><select id="red_cifras" name="red_cifras"><option>Instagram</option><option>TikTok</option></select></div>
+    <div class="f"><label for="seguidores">Seguidores</label><input id="seguidores" name="seguidores" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Ej.: 25000" required></div>
+    <div class="f"><label for="vistas">Promedio de vistas por reel o video</label><input id="vistas" name="vistas" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Ej.: 18000" required></div>
+     <div class="f"><label for="interacciones">Promedio de interacciones por publicación <small>(me gusta + comentarios)</small></label><input id="interacciones" name="interacciones" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Ej.: 900" required></div>
+   </fieldset>
+   <hr class="sep">
+   <fieldset class="grupo">
+    <legend>Pantallazos de tu audiencia</legend>
+    <p class="ayuda" style="margin-top:-6px">Tu audiencia por ciudad, edad y género, tomada de las estadísticas de tu cuenta. Sube al menos uno. Solo los ve el equipo de Northik.</p>
+    <label class="subir" for="pantallazos">
+     <input id="pantallazos" name="pantallazos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+     <strong>Elegir pantallazos</strong>
+     <span>Al menos 1 y hasta 4 imágenes de 5 MB (JPG, PNG o WEBP)</span>
+    </label>
+    <ul class="archivos" id="archivos" aria-live="polite"></ul>
+   </fieldset>
+   <hr class="sep">
+   <fieldset class="grupo">
+    <div class="trap" aria-hidden="true"><label for="sitio_web">No llenar</label><input id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off"></div>
+    <label class="check"><input type="checkbox" id="mayor_edad" name="mayor_edad" required><span>Soy mayor de 18 años</span></label>
+    <label class="check"><input type="checkbox" id="autorizo" name="autorizo" required><span>Autorizo el tratamiento de mis datos según la <a href="/datos/#creadores" target="_blank" rel="noopener">Política de Tratamiento de Datos</a></span></label>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <button type="submit" class="btn" id="enviar">Registrarme gratis</button>
+   </fieldset>
+  </form>
+ </section>
+</div>
+
+ <!-- Paso 2 · Registro listo y resumen del perfil -->
+ <section class="paso" id="paso2" aria-labelledby="t2" hidden>
+  <div class="intro ok">
+   <span class="kicker mono">Para creadores</span>
+   <div class="marca" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E1A17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+   <h2 id="t2" tabindex="-1">Tu registro quedó listo.</h2>
+   <p>Tu perfil ya hace parte de la base de creadores de Northik Match. Cuando una marca o agencia busque un perfil como el tuyo, lo incluiremos en la evaluación. Para actualizar tus datos, escríbenos a <a href="mailto:hola@northik.ai">hola@northik.ai</a>.</p>
+  </div>
+  <div class="resumen" id="resumen" aria-labelledby="t-resumen">
+   <header><h3 id="t-resumen">Resumen de tu perfil</h3><span class="mono" id="r-red"></span></header>
+   <div id="r-cuerpo"></div>
+   <p class="nota">Resumen calculado con las cifras que compartiste; no es una evaluación de Northik Match.<span id="r-fuente"></span></p>
+  </div>
+ </section>
+
+</main>
+<footer class="wrap"><span>Luisa Fernanda Tamayo Zuluaga · Northik AI · Envigado, Antioquia, Colombia · <a href="mailto:hola@northik.ai">hola@northik.ai</a></span><span><a href="/terminos/">Términos</a> · <a href="/datos/">Política de datos</a> · <a href="/cookies/">Cookies</a> · <a href="/reembolsos/">Reembolsos</a></span></footer>
+<script src="/creadores/movimiento.js" defer></script>
+<script type="module" src="/creadores/creadores.js"></script>
+</body>
+</html>
