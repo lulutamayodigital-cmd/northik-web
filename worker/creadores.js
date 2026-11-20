@@ -4,7 +4,7 @@
 //   Si la hoja falla, el registro se guarda en D1 (tabla creadores_respaldo) y llega un aviso por correo.
 // - archivoCreador: entrega un pantallazo solo a quien pasó por Cloudflare Access (/admin/creadores/…).
 // - borrarCreadoresVencidos: borrado mensual (cron) de filas, pantallazos y respaldos con más de 24 meses.
-import { NICHOS, TARIFAS, PANTALLAZOS, TEXTO_CASILLAS, RESIDENCIAS } from "../creadores/config.js";
+import { NICHOS, TARIFAS_POR_PAIS, PANTALLAZOS, TEXTO_CASILLAS, RESIDENCIAS } from "../creadores/config.js";
 import { PAISES } from "../agenda/paises.js";
 import { agregarFila, leerFilas, borrarFilas, crearHoja, asegurarTitulo } from "./google.js";
 import { avisoInterno } from "./aviso.js";
@@ -49,7 +49,7 @@ export function validar(body) {
   const residencia = RESIDENCIAS.includes(body.residencia) ? body.residencia : "";
   const ciudad = limpiar(body.ciudad, 60);
   const nicho = NICHOS.includes(body.nicho) ? body.nicho : "";
-  const tarifa = TARIFAS.includes(body.tarifa) ? body.tarifa : "";
+  const tarifa = (TARIFAS_POR_PAIS[residencia]?.rangos || []).includes(body.tarifa) ? body.tarifa : "";
   const correo = limpiar(body.correo, 160).toLowerCase();
   const pais = PAISES.find((p) => p.codigo === body.pais);
   const numero = String(body.telefono ?? "").replace(/\D/g, "");
