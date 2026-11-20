@@ -21,6 +21,9 @@ export const NICHOS = [
   "Otro",
 ];
 
+// País de residencia del creador.
+export const RESIDENCIAS = ["Colombia", "México", "España", "Otro"];
+
 // Rango de tarifa por publicación, en pesos colombianos.
 export const TARIFAS = [
   "Todavía no tengo tarifa",
