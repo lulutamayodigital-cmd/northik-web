@@ -2,7 +2,7 @@
 // Paso 1: formulario · Paso 2: registro listo y resumen del perfil.
 // El registro se envía a /api/creadores (worker). El resumen se calcula aquí, solo con las cifras escritas.
 import { PAISES } from "../agenda/paises.js";
-import { NICHOS, TARIFAS, PANTALLAZOS, RANGO_ER } from "./config.js";
+import { NICHOS, TARIFAS_POR_PAIS, PANTALLAZOS, RANGO_ER, RESIDENCIAS } from "./config.js";
 import { resumen } from "./resumen.js";
 
 const $ = (id) => document.getElementById(id);
@@ -14,7 +14,15 @@ const origen = /^[a-zA-Z0-9_-]{1,40}$/.test(origenUrl) ? origenUrl.toLowerCase()
 
 const opciones = (lista) => lista.map((o) => `<option>${o}</option>`).join("");
 $("nicho").insertAdjacentHTML("beforeend", opciones(NICHOS));
-$("tarifa").insertAdjacentHTML("beforeend", opciones(TARIFAS));
+$("residencia").insertAdjacentHTML("beforeend", opciones(RESIDENCIAS));
+// Los rangos de tarifa van en la moneda del país de residencia.
+$("residencia").addEventListener("change", () => {
+  const t = TARIFAS_POR_PAIS[$("residencia").value];
+  if (!t) return;
+  $("tarifa").innerHTML = `<option value="" disabled selected>Elige un rango</option>` + opciones(t.rangos);
+  $("tarifa").disabled = false;
+  $("tarifa-moneda").textContent = `(${t.moneda})`;
+});
 $("pais").innerHTML = PAISES.map((p) => `<option value="${p.codigo}">${p.codigo} +${p.prefijo}</option>`).join("");
 $("pais").value = "CO";
 
@@ -66,6 +74,7 @@ function leer() {
     nombre: (d.get("nombre") || "").trim(),
     instagram: usuario(d.get("instagram")),
     tiktok: usuario(d.get("tiktok")),
+    residencia: d.get("residencia") || "",
     ciudad: (d.get("ciudad") || "").trim(),
     nicho: d.get("nicho") || "",
     tarifa: d.get("tarifa") || "",
@@ -89,6 +98,7 @@ $("formulario").addEventListener("submit", async (e) => {
   const falta = [];
   if (d.nombre.length < 2) falta.push("tu nombre");
   if (!d.instagram && !d.tiktok) falta.push("tu usuario de Instagram o TikTok");
+  if (!d.residencia) falta.push("tu país de residencia");
   if (d.ciudad.length < 2) falta.push("tu ciudad");
   if (!d.nicho) falta.push("tu nicho");
   if (!d.tarifa) falta.push("tu rango de tarifa");

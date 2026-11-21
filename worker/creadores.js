@@ -4,9 +4,9 @@
 //   Si la hoja falla, el registro se guarda en D1 (tabla creadores_respaldo) y llega un aviso por correo.
 // - archivoCreador: entrega un pantallazo solo a quien pasó por Cloudflare Access (/admin/creadores/…).
 // - borrarCreadoresVencidos: borrado mensual (cron) de filas, pantallazos y respaldos con más de 24 meses.
-import { NICHOS, TARIFAS, PANTALLAZOS, TEXTO_CASILLAS } from "../creadores/config.js";
+import { NICHOS, TARIFAS_POR_PAIS, PANTALLAZOS, TEXTO_CASILLAS, RESIDENCIAS } from "../creadores/config.js";
 import { PAISES } from "../agenda/paises.js";
-import { agregarFila, leerFilas, borrarFilas, crearHoja } from "./google.js";
+import { agregarFila, leerFilas, borrarFilas, crearHoja, asegurarTitulo } from "./google.js";
 import { avisoInterno } from "./aviso.js";
 import { VERSION_DOCUMENTOS } from "./documentos.js";
 
@@ -16,7 +16,7 @@ export const HOJA_CREADORES = {
   columnas: ["Fecha de registro", "Nombre", "Instagram", "TikTok", "Ciudad", "Nicho", "Tarifa por publicación",
     "Correo", "WhatsApp", "Red de las cifras", "Seguidores", "Vistas promedio por reel o video",
     "Interacciones promedio por publicación", "Mayor de 18", "Autoriza tratamiento de datos",
-    "Versión de la política", "Origen", "Pantallazos", "ID del registro"],
+    "Versión de la política", "Origen", "Pantallazos", "ID del registro", "País de residencia"],
 };
 const CONSERVACION_MESES = 24;
 const MEDIO = "Registro de creadores northik.ai/creadores";
@@ -24,7 +24,7 @@ const URL_DATOS = "https://northik.ai/datos/";
 const REMITENTE = "Registro de creadores Northik";
 
 const MSG_ERROR = "No pudimos enviar tu registro. Intenta de nuevo o escríbenos a hola@northik.ai.";
-const CAMPOS = new Set(["nombre", "instagram", "tiktok", "ciudad", "nicho", "tarifa", "correo", "pais", "telefono",
+const CAMPOS = new Set(["nombre", "instagram", "tiktok", "residencia", "ciudad", "nicho", "tarifa", "correo", "pais", "telefono",
   "red_cifras", "seguidores", "vistas", "interacciones", "mayor_edad", "autorizo", "origen", "sitio_web"]);
 const MAX_CUERPO = PANTALLAZOS.maximo * PANTALLAZOS.maxBytes + 100000;
 
@@ -46,9 +46,10 @@ export function validar(body) {
   const nombre = limpiar(body.nombre, 80);
   const instagram = usuario(body.instagram);
   const tiktok = usuario(body.tiktok);
+  const residencia = RESIDENCIAS.includes(body.residencia) ? body.residencia : "";
   const ciudad = limpiar(body.ciudad, 60);
   const nicho = NICHOS.includes(body.nicho) ? body.nicho : "";
-  const tarifa = TARIFAS.includes(body.tarifa) ? body.tarifa : "";
+  const tarifa = (TARIFAS_POR_PAIS[residencia]?.rangos || []).includes(body.tarifa) ? body.tarifa : "";
   const correo = limpiar(body.correo, 160).toLowerCase();
   const pais = PAISES.find((p) => p.codigo === body.pais);
   const numero = String(body.telefono ?? "").replace(/\D/g, "");
@@ -58,6 +59,7 @@ export function validar(body) {
 
   if (nombre.length < 2) errores.push("nombre");
   if (!instagram && !tiktok) errores.push("redes");
+  if (!residencia) errores.push("residencia");
   if (ciudad.length < 2) errores.push("ciudad");
   if (!nicho) errores.push("nicho");
   if (!tarifa) errores.push("tarifa");
@@ -71,7 +73,7 @@ export function validar(body) {
 
   return {
     errores,
-    datos: { nombre, instagram, tiktok, ciudad, nicho, tarifa, correo, whatsapp: `+${pais?.prefijo ?? ""} ${numero}`,
+    datos: { nombre, instagram, tiktok, residencia, ciudad, nicho, tarifa, correo, whatsapp: `+${pais?.prefijo ?? ""} ${numero}`,
       red_cifras, seguidores, vistas, interacciones, origen },
   };
 }
@@ -194,7 +196,7 @@ async function _registrar(request, env, ctx, json) {
     fechaHoraBogota(ahora), datos.nombre, datos.instagram ? "@" + datos.instagram : "", datos.tiktok ? "@" + datos.tiktok : "",
     datos.ciudad, datos.nicho, datos.tarifa, datos.correo, datos.whatsapp, hayCifras ? datos.red_cifras : "",
     datos.seguidores || "", datos.vistas || "", datos.interacciones || "", "Sí", "Sí", VERSION_DOCUMENTOS, datos.origen,
-    enlaces.join("\n") || (imagenes.length ? "No se pudieron guardar" : ""), id,
+    enlaces.join("\n") || (imagenes.length ? "No se pudieron guardar" : ""), id, datos.residencia,
   ].map((v) => String(v));
 
   // Prueba de la autorización (no bloquea el registro: la fila también la lleva).
@@ -211,6 +213,10 @@ async function _registrar(request, env, ctx, json) {
   // Hoja privada. Si falla: respaldo en D1 y aviso por correo. El registro no se pierde.
   try {
     const hojaId = await hojaCreadores(env);
+    // Hojas creadas antes de la columna «País de residencia»: le pone el título una vez (no bloquea el registro).
+    const colResidencia = HOJA_CREADORES.columnas.indexOf("País de residencia");
+    await asegurarTitulo(env, hojaId, HOJA_CREADORES.pestana, colResidencia, "País de residencia")
+      .catch((e) => console.error("No se pudo poner el título de País de residencia:", e));
     await agregarFila(env, hojaId, HOJA_CREADORES.pestana, fila);
   } catch (e) {
     const error = String((e && e.message) || e).slice(0, 300);

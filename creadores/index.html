@@ -367,11 +367,12 @@ footer a{color:inherit}
      <div class="f"><label for="tiktok">Usuario de TikTok</label><div class="arroba"><input id="tiktok" name="tiktok" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="tuusuario"></div></div>
     </div>
     <p class="ayuda">Escribe al menos uno de los dos.</p>
+    <div class="f"><label for="residencia">País de residencia</label><select id="residencia" name="residencia" required><option value="" disabled selected>Elige uno</option></select></div>
     <div class="dos">
      <div class="f"><label for="ciudad">Ciudad</label><input id="ciudad" name="ciudad" autocomplete="address-level2" required maxlength="60" placeholder="Medellín"></div>
      <div class="f"><label for="nicho">Nicho</label><select id="nicho" name="nicho" required><option value="" disabled selected>Elige uno</option></select></div>
     </div>
-    <div class="f"><label for="tarifa">Rango de tarifa por publicación <small>(pesos colombianos)</small></label><select id="tarifa" name="tarifa" required><option value="" disabled selected>Elige un rango</option></select></div>
+    <div class="f"><label for="tarifa">Rango de tarifa por publicación <small id="tarifa-moneda"></small></label><select id="tarifa" name="tarifa" required disabled><option value="" disabled selected>Elige primero tu país de residencia</option></select></div>
     <div class="f"><label for="correo">Correo</label><input id="correo" name="correo" type="email" inputmode="email" autocomplete="email" required maxlength="160"></div>
     <div class="f"><label for="telefono">WhatsApp</label>
      <div class="tel">

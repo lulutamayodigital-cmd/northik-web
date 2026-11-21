@@ -21,6 +21,9 @@ export const NICHOS = [
   "Otro",
 ];
 
+// País de residencia del creador.
+export const RESIDENCIAS = ["Colombia", "México", "Otro"];
+
 // Rango de tarifa por publicación, en pesos colombianos.
 export const TARIFAS = [
   "Todavía no tengo tarifa",
@@ -28,8 +31,41 @@ export const TARIFAS = [
   "$300.000 a $800.000",
   "$800.000 a $2.000.000",
   "$2.000.000 a $5.000.000",
-  "Más de $5.000.000",
+  "$5.000.000 a $15.000.000",
+  "Más de $15.000.000",
 ];
+
+// Rangos de tarifa según el país de residencia (en su moneda). Colombia usa TARIFAS.
+export const TARIFAS_POR_PAIS = {
+  "Colombia": { moneda: "pesos colombianos", rangos: TARIFAS },
+  "México": { moneda: "pesos mexicanos", rangos: [
+    "Todavía no tengo tarifa",
+    "Menos de $1.000 MXN",
+    "$1.000 a $5.000 MXN",
+    "$5.000 a $10.000 MXN",
+    "$10.000 a $30.000 MXN",
+    "$30.000 a $100.000 MXN",
+    "Más de $100.000 MXN",
+  ] },
+  // España: pendiente de aprobación legal. Para activarla, quita los comentarios y agrega «España» a RESIDENCIAS.
+  // "España": { moneda: "euros", rangos: [
+  //   "Todavía no tengo tarifa",
+  //   "Menos de 150 €",
+  //   "150 € a 500 €",
+  //   "500 € a 2.000 €",
+  //   "2.000 € a 5.000 €",
+  //   "5.000 € a 10.000 €",
+  //   "Más de 10.000 €",
+  // ] },
+  "Otro": { moneda: "dólares", rangos: [
+    "Todavía no tengo tarifa",
+    "Menos de USD 100",
+    "USD 100 a 500",
+    "USD 500 a 2.000",
+    "USD 2.000 a 5.000",
+    "Más de USD 5.000",
+  ] },
+};
 
 // Tamaños por seguidores y engagement típico por tamaño: copiados de la herramienta Northik Match
 // (influencer-intelligence: ii/metrics.py → TAMANOS, RANGO_ER y ER_SOSPECHOSO; ii/interpretacion.py → veredicto_er).
