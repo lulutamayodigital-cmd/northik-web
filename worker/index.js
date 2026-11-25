@@ -26,7 +26,9 @@ const TEXTO_CASILLAS = {
   novedades: "Quiero recibir novedades de Northik por correo o WhatsApp",
 };
 
-const SERVICIOS = ["Strategy", "Motion", "Match", "Flow", "No sé todavía"];
+const SERVICIOS = ["Strategy", "Motion", "Match", "Works", "No sé todavía"];
+// Antes el servicio se llamaba Flow: los envíos desde una página vieja se guardan como Works.
+const NOMBRES_ANTERIORES = { servicio: { Flow: "Works" } };
 const PLAZOS = ["", "Lo antes posible", "En 1 mes", "En 2 a 3 meses", "Solo estoy explorando"];
 const PRESUPUESTOS = ["", "Menos de $2.000.000", "$2.000.000 a $5.000.000", "$5.000.000 a $10.000.000", "Más de $10.000.000", "Prefiero no decir"];
 const ORIGENES = ["", "Instagram", "Recomendación", "Google", "Evento o charla", "Otro"];
@@ -137,7 +139,8 @@ async function contacto(request, env) {
     r[k] = v;
   }
   for (const [k, lista] of Object.entries(OPCIONES)) {
-    const v = limpiar(datos[k]);
+    const crudo = limpiar(datos[k]);
+    const v = NOMBRES_ANTERIORES[k]?.[crudo] ?? crudo;
     r[k] = lista.includes(v) ? v : (k === "servicio" ? "No sé todavía" : "");
   }
   const marca = (k) => datos[k] === true || datos[k] === "si" || datos[k] === "on";
