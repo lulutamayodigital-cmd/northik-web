@@ -16,15 +16,19 @@ Sitio web de Northik AI, publicado en **Cloudflare Workers con archivos estátic
 
 ## Publicar
 
-```bash
-npx wrangler deploy
-```
+Cloudflare (Workers Builds) está conectado a este repositorio: **cada cambio que llega a `main` se publica solo** en northik.ai. Por eso:
+
+- Cada cambio se trabaja en una rama aparte y entra a `main` con un pull request.
+- No uses `npx wrangler deploy` para publicar: el siguiente cambio en `main` pisa lo publicado a mano.
+- Los secretos no se publican con el código: se guardan con `npx wrangler secret put NOMBRE`.
 
 Para probar en el computador: `npx wrangler dev` (abre http://localhost:8787).
 
+Dominios: `northik.ai`, `www.northik.ai` y `northik.co` (redirige a northik.ai), todos en Cloudflare.
+
 ## Agenda (`/agenda/`)
 
-- Reglas de disponibilidad (horarios, duración, anticipación, festivos y días sin citas propios en `diasSinCitas`): `worker/agenda-config.js`. Cada cambio requiere `npx wrangler deploy`.
+- Reglas de disponibilidad (horarios, duración, anticipación, festivos y días sin citas propios en `diasSinCitas`): `worker/agenda-config.js`. Cada cambio se publica al llegar a `main`.
 - Secretos en Cloudflare, nunca en el repositorio:
   ```bash
   npx wrangler secret put GOOGLE_CLIENT_SECRET
