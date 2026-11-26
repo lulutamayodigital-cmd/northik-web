@@ -33,14 +33,16 @@
     // Se llenan al configurar Cloudflare Access para las descargas en CSV.
     "ACCESS_TEAM_DOMAIN": "old-river-e3fc.cloudflareaccess.com",
     "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a",
-    // Agenda: ID del cliente OAuth de Google (no es secreto). El client secret y el refresh token
-    // van como secretos: npx wrangler secret put GOOGLE_CLIENT_SECRET / GOOGLE_REFRESH_TOKEN
-    "GOOGLE_CLIENT_ID": "990715747261-cb80ahirg2o98pfftsr7a2a8psofsn31.apps.googleusercontent.com",
+    // Google (agenda y creadores): ID del cliente OAuth (no es secreto). El client secret y el refresh token
+    // van como secretos (GOOGLE_NK_CLIENT_SECRET y GOOGLE_NK_REFRESH_TOKEN): los guarda scripts/token-google.mjs.
+    "GOOGLE_CLIENT_ID": "269740785499-thbkon99o4hgrgdrghb4rqsqjjkjhln4.apps.googleusercontent.com",
+    // Agenda: calendarios separados por coma. El primero recibe las citas; en todos se revisan las horas ocupadas.
+    "AGENDA_CALENDARIOS": "c_71c4aba610e35217098d957310fcec6ae009f8db54f75f17b189858e2a1c5d88@group.calendar.google.com,primary",
     // Agenda: ID de la hoja privada «Northik · Agenda» (lo llena scripts/token-google.mjs al crearla).
-    "AGENDA_SHEET_ID": "17FFgW7dc5fM5EHuaH-1gu-PHtSQ8JNpWcOPIKZ7gn2M",
-    // Creadores: ID de la hoja privada «Northik · Creadores». Si queda vacío, la web la crea sola con el primer
-    // registro (en el Drive de la cuenta de Google conectada) y guarda su ID en D1 (tabla ajustes).
-    "CREADORES_SHEET_ID": ""
+    "AGENDA_SHEET_ID": "1AzX8j6ejfVXKPYASO3yDx9V6UN4ZBZlsoiLO5BpEtr4",
+    // Creadores: ID de la hoja privada «Northik · Creadores» (lo llena scripts/token-google.mjs al crearla).
+    // Si quedara vacío, la web la crearía sola con el primer registro y guardaría su ID en D1 (tabla ajustes).
+    "CREADORES_SHEET_ID": "1DUjPc8l6VBHNvWZ163Z8D4UIRhiEMFwc9RRGABdS1x8"
   },
   // Borrado mensual de interesados con más de 24 meses sin escribir, de citas de /agenda y de registros de /creadores con más de 24 meses: día 1 a las 3:00 a. m. de Colombia.
   "triggers": { "crons": ["0 8 1 * *"] },

@@ -105,6 +105,8 @@ $("confirmar").addEventListener("click", async () => {
             Object.assign(document.createElement("a"), { href: j.enlace, textContent: "este enlace" }), " o "]
           : ["Si necesitas cambiar la hora, "]),
         Object.assign(document.createElement("a"), { href: $("whatsapp").href, target: "_blank", rel: "noopener", textContent: "escríbenos por WhatsApp" }),
+        ". ¿Preguntas antes de la llamada? Escríbenos a ",
+        Object.assign(document.createElement("a"), { href: "mailto:hola@northik.ai", textContent: "hola@northik.ai" }),
         ".",
       );
       irA(3);

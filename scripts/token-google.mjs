@@ -1,6 +1,9 @@
-// Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare.
-// Si todavía no existe, crea la hoja privada «Northik · Agenda» y anota su ID en wrangler.jsonc.
-// Uso:  node scripts/token-google.mjs
+// Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare
+// (GOOGLE_NK_CLIENT_SECRET y GOOGLE_NK_REFRESH_TOKEN).
+// Si AGENDA_SHEET_ID o CREADORES_SHEET_ID están vacíos en wrangler.jsonc, crea esas hojas privadas
+// («Northik · Agenda» y «Northik · Creadores») en el Drive de la cuenta y anota su ID.
+// Al final revisa que pueda leer las horas ocupadas de los calendarios de AGENDA_CALENDARIOS.
+// Uso:  node scripts/token-google.mjs           (con --local guarda además una copia en .dev.vars para probar)
 // - Cuando se abra Google, inicia sesión con la cuenta de Northik indicada en la documentación privada.
 // - El token nunca se muestra ni se escribe en disco: va directo a `wrangler secret put`.
 // Requisitos: GOOGLE_CLIENT_ID en wrangler.jsonc y, en Google Cloud, la URI de redirección
@@ -8,8 +11,10 @@
 import http from "node:http";
 import crypto from "node:crypto";
 import fs from "node:fs";
-import { spawn, execFile } from "node:child_process";
+import { spawn, execFile, execFileSync } from "node:child_process";
 import readline from "node:readline";
+import { CONFIG } from "../worker/agenda-config.js";
+import { HOJA_CREADORES } from "../worker/hoja-creadores.js";
 
 const PUERTO = 8765;
 const REDIRECCION = `http://127.0.0.1:${PUERTO}/callback`;
@@ -20,27 +25,42 @@ const ALCANCES = [
   "https://www.googleapis.com/auth/spreadsheets",
 ].join(" ");
 
-const COLUMNAS = ["Fecha de reserva", "Fecha de la cita", "Hora", "Nombre", "Correo", "WhatsApp",
-  "Qué quiere lograr", "Mensaje", "Origen", "ID del evento", "Estado"];
-
-// Crea la hoja privada (no se comparte con nadie) con la pestaña «Citas» y sus títulos.
-async function crearHoja(accessToken) {
+// Crea una hoja privada (no se comparte con nadie) con una pestaña y sus títulos en negrita.
+async function crearHoja(accessToken, { nombre, pestana, columnas }) {
   const r = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
     method: "POST",
     headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
     body: JSON.stringify({
-      properties: { title: "Northik · Agenda", locale: "es_CO", timeZone: "America/Bogota" },
+      properties: { title: nombre, locale: "es_CO", timeZone: "America/Bogota" },
       sheets: [{
-        properties: { title: "Citas", gridProperties: { frozenRowCount: 1, columnCount: COLUMNAS.length } },
-        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: COLUMNAS.map((c) => ({
+        properties: { title: pestana, gridProperties: { frozenRowCount: 1, columnCount: columnas.length } },
+        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: columnas.map((c) => ({
           userEnteredValue: { stringValue: c }, userEnteredFormat: { textFormat: { bold: true } },
         })) }] }],
       }],
     }),
   });
   const j = await r.json();
-  if (!r.ok) throw new Error("No se pudo crear la hoja: " + (j.error?.message || r.status));
+  if (!r.ok) throw new Error(`No se pudo crear la hoja «${nombre}»: ` + (j.error?.message || r.status));
   return j.spreadsheetId;
+}
+
+// Revisa que el token pueda leer las horas ocupadas de cada calendario (no muestra ningún evento).
+async function revisarCalendarios(accessToken, ids) {
+  const ahora = new Date();
+  const r = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
+    body: JSON.stringify({ timeMin: ahora.toISOString(), timeMax: new Date(+ahora + 7 * 864e5).toISOString(),
+      items: ids.map((id) => ({ id })) }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error("No se pudieron revisar los calendarios: " + (j.error?.message || r.status));
+  ids.forEach((id, i) => {
+    const errores = j.calendars?.[id]?.errors;
+    const nombre = i === 0 ? "calendario de citas" : id === "primary" ? "calendario principal" : `calendario ${i + 1}`;
+    console.log(errores?.length ? `✗ ${nombre}: sin acceso (${errores.map((e) => e.reason).join(", ")})` : `✓ ${nombre}: se pueden leer las horas ocupadas`);
+  });
 }
 
 const config = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
@@ -66,11 +86,40 @@ function guardarSecreto(nombre, valor) {
   });
 }
 
-const clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
+
+// Copia local para probar con `npx wrangler dev` y Google real (solo con permiso, y se borra al terminar).
+// Solo escribe si .dev.vars está en .gitignore; desactiva el modo simulado (GOOGLE_MOCK) mientras tanto.
+function guardarEnDevVars(valores) {
+  const ruta = new URL("../.dev.vars", import.meta.url);
+  try {
+    execFileSync("git", ["check-ignore", "-q", ".dev.vars"], { cwd: new URL("..", import.meta.url) });
+  } catch {
+    console.error("✗ .dev.vars no está en .gitignore: no guardé la copia local.");
+    return;
+  }
+  const nombres = Object.keys(valores);
+  const lineas = (fs.existsSync(ruta) ? fs.readFileSync(ruta, "utf8") : "").split("\n")
+    .filter((l) => l && !nombres.some((n) => l.startsWith(n + "=")))
+    .map((l) => (l.startsWith("GOOGLE_MOCK=") ? "# " + l + "  (desactivado para la prueba con Google real)" : l));
+  for (const n of nombres) lineas.push(`${n}=${valores[n]}`);
+  fs.writeFileSync(ruta, lineas.join("\n") + "\n", { mode: 0o600 });
+  console.log("✓ Copia local en .dev.vars para la prueba (está en .gitignore). Bórrala al terminar.");
+}
+
+let clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
+// Algunas terminales pegan el texto dos veces o le agregan marcas de «pegado»: se limpian aquí.
+clientSecret = clientSecret.replace(/\x1b\[20[01]~/g, "").replace(/\s+/g, "");
+const mitad = clientSecret.length / 2;
+if (Number.isInteger(mitad) && clientSecret.slice(0, mitad) === clientSecret.slice(mitad)) {
+  clientSecret = clientSecret.slice(0, mitad);
+  console.log("El secreto llegó pegado dos veces; uso una sola copia.");
+}
 if (!/^GOCSPX-[A-Za-z0-9_-]{20,}$/.test(clientSecret)) {
   console.error(`Eso no parece un client secret (debe empezar por GOCSPX-; recibí ${clientSecret.length} caracteres). Vuelve a copiarlo.`);
   process.exit(1);
 }
+// Solo los últimos 4 caracteres, para compararlos con la lista de secretos del cliente en Google Cloud.
+console.log(`Recibí un client secret que termina en …${clientSecret.slice(-4)} (${clientSecret.length} caracteres).`);
 const estado = crypto.randomBytes(16).toString("hex");
 const verificador = crypto.randomBytes(32).toString("base64url");
 const reto = crypto.createHash("sha256").update(verificador).digest("base64url");
@@ -103,21 +152,31 @@ const servidor = http.createServer(async (req, res) => {
       }),
     });
     const j = await r.json();
+    if (j.error === "invalid_client") {
+      throw new Error("Google rechazó el client secret (invalid_client): no corresponde a este ID de cliente o está inhabilitado. Revisa en Google Cloud que el secreto habilitado termine igual que el de arriba.");
+    }
     if (!j.refresh_token) throw new Error(`Google no devolvió refresh token (${j.error || r.status})`);
     if (!(j.scope || "").includes("spreadsheets") || !(j.scope || "").includes("calendar.events")) {
       throw new Error("Falta algún permiso. Vuelve a correr el script y marca todas las casillas en Google.");
     }
-    const actual = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
-    if (/"AGENDA_SHEET_ID":\s*""/.test(actual)) {
-      const id = await crearHoja(j.access_token);
-      fs.writeFileSync(new URL("../wrangler.jsonc", import.meta.url),
-        actual.replace(/"AGENDA_SHEET_ID":\s*""/, `"AGENDA_SHEET_ID": "${id}"`));
-      console.log("Hoja «Northik · Agenda» creada (privada). Su ID quedó en wrangler.jsonc.");
+    let actual = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
+    for (const [variable, hoja] of [["AGENDA_SHEET_ID", CONFIG.hoja], ["CREADORES_SHEET_ID", HOJA_CREADORES]]) {
+      const vacio = new RegExp(`"${variable}":\\s*""`);
+      if (!vacio.test(actual)) continue;
+      const id = await crearHoja(j.access_token, hoja);
+      actual = actual.replace(vacio, `"${variable}": "${id}"`);
+      fs.writeFileSync(new URL("../wrangler.jsonc", import.meta.url), actual);
+      console.log(`Hoja «${hoja.nombre}» creada (privada). Su ID quedó en wrangler.jsonc.`);
+    }
+    const calendarios = ((actual.match(/"AGENDA_CALENDARIOS":\s*"([^"]*)"/) || [])[1] || "primary").split(",").map((c) => c.trim()).filter(Boolean);
+    await revisarCalendarios(j.access_token, calendarios);
+    if (process.argv.includes("--local")) {
+      guardarEnDevVars({ GOOGLE_NK_CLIENT_SECRET: clientSecret, GOOGLE_NK_REFRESH_TOKEN: j.refresh_token });
     }
     console.log("Guardando secretos en Cloudflare…");
-    await guardarSecreto("GOOGLE_CLIENT_SECRET", clientSecret);
-    await guardarSecreto("GOOGLE_REFRESH_TOKEN", j.refresh_token);
-    console.log("Hecho. La agenda ya puede leer y crear eventos en el calendario.");
+    await guardarSecreto("GOOGLE_NK_CLIENT_SECRET", clientSecret);
+    await guardarSecreto("GOOGLE_NK_REFRESH_TOKEN", j.refresh_token);
+    console.log("Hecho. Los secretos nuevos quedaron en Cloudflare; la web publicada los usa cuando esta rama llegue a main.");
   } catch (e) {
     console.error(e.message);
     process.exitCode = 1;
