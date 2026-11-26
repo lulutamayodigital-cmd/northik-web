@@ -32,7 +32,7 @@ export const CONFIG = {
   // 2026-11-30: compromiso a la hora de la agenda (25 nov).
   diasSinCitas: ['2026-11-30', '2026-12-07', '2026-12-24', '2026-12-30', '2026-12-31'],
 
-  // Hoja privada en el Drive de northik.admin (su ID va en AGENDA_SHEET_ID, wrangler.jsonc).
+  // Hoja privada en el Drive de la cuenta de Google conectada (su ID va en AGENDA_SHEET_ID, wrangler.jsonc).
   hoja: {
     nombre: 'Northik · Agenda',
     pestana: 'Citas',
