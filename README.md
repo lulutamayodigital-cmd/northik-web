@@ -37,6 +37,7 @@ Dominios: `northik.ai`, `www.northik.ai` y `northik.co` (redirige a northik.ai),
 - En Google Cloud deben estar activas las APIs de Calendar y Sheets. Permisos del token: `calendar.events`, `calendar.freebusy` y `spreadsheets`.
 - Vuelve a correr `node scripts/token-google.mjs` si cambias el client secret, si quitas el permiso de la app en Google o si cambian los permisos que pide.
 - Las citas no se guardan en D1.
+- Caso observado el 26 nov 2026: en la primera reserva de prueba después de publicar el cambio a la cuenta de Workspace, la cita se creó en el calendario pero la fila no llegó a la hoja y tampoco llegó el aviso de «no se guardó en la hoja». Las reservas siguientes sí se guardaron. Si vuelve a pasar: compara el calendario con la hoja, agrega la fila a mano y revisa los registros del worker en Cloudflare (Observability) a la hora de la reserva.
 
 ## Registro de creadores (`/creadores/`)
 
