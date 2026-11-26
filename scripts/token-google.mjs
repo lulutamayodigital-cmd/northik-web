@@ -111,6 +111,8 @@ if (!/^GOCSPX-[A-Za-z0-9_-]{20,}$/.test(clientSecret)) {
   console.error(`Eso no parece un client secret (debe empezar por GOCSPX-; recibí ${clientSecret.length} caracteres). Vuelve a copiarlo.`);
   process.exit(1);
 }
+// Solo los últimos 4 caracteres, para compararlos con la lista de secretos del cliente en Google Cloud.
+console.log(`Recibí un client secret que termina en …${clientSecret.slice(-4)} (${clientSecret.length} caracteres).`);
 const estado = crypto.randomBytes(16).toString("hex");
 const verificador = crypto.randomBytes(32).toString("base64url");
 const reto = crypto.createHash("sha256").update(verificador).digest("base64url");
@@ -143,6 +145,9 @@ const servidor = http.createServer(async (req, res) => {
       }),
     });
     const j = await r.json();
+    if (j.error === "invalid_client") {
+      throw new Error("Google rechazó el client secret (invalid_client): no corresponde a este ID de cliente o está inhabilitado. Revisa en Google Cloud que el secreto habilitado termine igual que el de arriba.");
+    }
     if (!j.refresh_token) throw new Error(`Google no devolvió refresh token (${j.error || r.status})`);
     if (!(j.scope || "").includes("spreadsheets") || !(j.scope || "").includes("calendar.events")) {
       throw new Error("Falta algún permiso. Vuelve a correr el script y marca todas las casillas en Google.");
