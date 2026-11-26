@@ -35,7 +35,7 @@
     "ACCESS_AUD": "c86d591dc709855c32456a76ccff14633c27b53b9c29b9d2ff972f5e594ce32a",
     // Google (agenda y creadores): ID del cliente OAuth (no es secreto). El client secret y el refresh token
     // van como secretos (GOOGLE_NK_CLIENT_SECRET y GOOGLE_NK_REFRESH_TOKEN): los guarda scripts/token-google.mjs.
-    "GOOGLE_CLIENT_ID": "",
+    "GOOGLE_CLIENT_ID": "269740785499-thbkon99o4hgrgdrghb4rqsqjjkjhln4.apps.googleusercontent.com",
     // Agenda: calendarios separados por coma. El primero recibe las citas; en todos se revisan las horas ocupadas.
     "AGENDA_CALENDARIOS": "c_71c4aba610e35217098d957310fcec6ae009f8db54f75f17b189858e2a1c5d88@group.calendar.google.com,primary",
     // Agenda: ID de la hoja privada «Northik · Agenda» (lo llena scripts/token-google.mjs al crearla).
