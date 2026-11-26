@@ -106,7 +106,14 @@ function guardarEnDevVars(valores) {
   console.log("✓ Copia local en .dev.vars para la prueba (está en .gitignore). Bórrala al terminar.");
 }
 
-const clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
+let clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
+// Algunas terminales pegan el texto dos veces o le agregan marcas de «pegado»: se limpian aquí.
+clientSecret = clientSecret.replace(/\x1b\[20[01]~/g, "").replace(/\s+/g, "");
+const mitad = clientSecret.length / 2;
+if (Number.isInteger(mitad) && clientSecret.slice(0, mitad) === clientSecret.slice(mitad)) {
+  clientSecret = clientSecret.slice(0, mitad);
+  console.log("El secreto llegó pegado dos veces; uso una sola copia.");
+}
 if (!/^GOCSPX-[A-Za-z0-9_-]{20,}$/.test(clientSecret)) {
   console.error(`Eso no parece un client secret (debe empezar por GOCSPX-; recibí ${clientSecret.length} caracteres). Vuelve a copiarlo.`);
   process.exit(1);
