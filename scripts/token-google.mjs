@@ -3,7 +3,7 @@
 // Si AGENDA_SHEET_ID o CREADORES_SHEET_ID están vacíos en wrangler.jsonc, crea esas hojas privadas
 // («Northik · Agenda» y «Northik · Creadores») en el Drive de la cuenta y anota su ID.
 // Al final revisa que pueda leer las horas ocupadas de los calendarios de AGENDA_CALENDARIOS.
-// Uso:  node scripts/token-google.mjs
+// Uso:  node scripts/token-google.mjs           (con --local guarda además una copia en .dev.vars para probar)
 // - Cuando se abra Google, inicia sesión con la cuenta de Northik indicada en la documentación privada.
 // - El token nunca se muestra ni se escribe en disco: va directo a `wrangler secret put`.
 // Requisitos: GOOGLE_CLIENT_ID en wrangler.jsonc y, en Google Cloud, la URI de redirección
@@ -11,7 +11,7 @@
 import http from "node:http";
 import crypto from "node:crypto";
 import fs from "node:fs";
-import { spawn, execFile } from "node:child_process";
+import { spawn, execFile, execFileSync } from "node:child_process";
 import readline from "node:readline";
 import { CONFIG } from "../worker/agenda-config.js";
 import { HOJA_CREADORES } from "../worker/hoja-creadores.js";
@@ -86,6 +86,26 @@ function guardarSecreto(nombre, valor) {
   });
 }
 
+
+// Copia local para probar con `npx wrangler dev` y Google real (solo con permiso, y se borra al terminar).
+// Solo escribe si .dev.vars está en .gitignore; desactiva el modo simulado (GOOGLE_MOCK) mientras tanto.
+function guardarEnDevVars(valores) {
+  const ruta = new URL("../.dev.vars", import.meta.url);
+  try {
+    execFileSync("git", ["check-ignore", "-q", ".dev.vars"], { cwd: new URL("..", import.meta.url) });
+  } catch {
+    console.error("✗ .dev.vars no está en .gitignore: no guardé la copia local.");
+    return;
+  }
+  const nombres = Object.keys(valores);
+  const lineas = (fs.existsSync(ruta) ? fs.readFileSync(ruta, "utf8") : "").split("\n")
+    .filter((l) => l && !nombres.some((n) => l.startsWith(n + "=")))
+    .map((l) => (l.startsWith("GOOGLE_MOCK=") ? "# " + l + "  (desactivado para la prueba con Google real)" : l));
+  for (const n of nombres) lineas.push(`${n}=${valores[n]}`);
+  fs.writeFileSync(ruta, lineas.join("\n") + "\n", { mode: 0o600 });
+  console.log("✓ Copia local en .dev.vars para la prueba (está en .gitignore). Bórrala al terminar.");
+}
+
 const clientSecret = await preguntarOculto("Pega el client secret de Google (no se mostrará): ");
 if (!/^GOCSPX-[A-Za-z0-9_-]{20,}$/.test(clientSecret)) {
   console.error(`Eso no parece un client secret (debe empezar por GOCSPX-; recibí ${clientSecret.length} caracteres). Vuelve a copiarlo.`);
@@ -138,6 +158,9 @@ const servidor = http.createServer(async (req, res) => {
     }
     const calendarios = ((actual.match(/"AGENDA_CALENDARIOS":\s*"([^"]*)"/) || [])[1] || "primary").split(",").map((c) => c.trim()).filter(Boolean);
     await revisarCalendarios(j.access_token, calendarios);
+    if (process.argv.includes("--local")) {
+      guardarEnDevVars({ GOOGLE_NK_CLIENT_SECRET: clientSecret, GOOGLE_NK_REFRESH_TOKEN: j.refresh_token });
+    }
     console.log("Guardando secretos en Cloudflare…");
     await guardarSecreto("GOOGLE_NK_CLIENT_SECRET", clientSecret);
     await guardarSecreto("GOOGLE_NK_REFRESH_TOKEN", j.refresh_token);
