@@ -1,5 +1,8 @@
-// Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare.
-// Si todavía no existe, crea la hoja privada «Northik · Agenda» y anota su ID en wrangler.jsonc.
+// Obtiene el refresh token de Google (Calendar + Sheets) y lo guarda como secreto de Cloudflare
+// (GOOGLE_NK_CLIENT_SECRET y GOOGLE_NK_REFRESH_TOKEN).
+// Si AGENDA_SHEET_ID o CREADORES_SHEET_ID están vacíos en wrangler.jsonc, crea esas hojas privadas
+// («Northik · Agenda» y «Northik · Creadores») en el Drive de la cuenta y anota su ID.
+// Al final revisa que pueda leer las horas ocupadas de los calendarios de AGENDA_CALENDARIOS.
 // Uso:  node scripts/token-google.mjs
 // - Cuando se abra Google, inicia sesión con la cuenta de Northik indicada en la documentación privada.
 // - El token nunca se muestra ni se escribe en disco: va directo a `wrangler secret put`.
@@ -10,6 +13,8 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import { spawn, execFile } from "node:child_process";
 import readline from "node:readline";
+import { CONFIG } from "../worker/agenda-config.js";
+import { HOJA_CREADORES } from "../worker/hoja-creadores.js";
 
 const PUERTO = 8765;
 const REDIRECCION = `http://127.0.0.1:${PUERTO}/callback`;
@@ -20,27 +25,42 @@ const ALCANCES = [
   "https://www.googleapis.com/auth/spreadsheets",
 ].join(" ");
 
-const COLUMNAS = ["Fecha de reserva", "Fecha de la cita", "Hora", "Nombre", "Correo", "WhatsApp",
-  "Qué quiere lograr", "Mensaje", "Origen", "ID del evento", "Estado"];
-
-// Crea la hoja privada (no se comparte con nadie) con la pestaña «Citas» y sus títulos.
-async function crearHoja(accessToken) {
+// Crea una hoja privada (no se comparte con nadie) con una pestaña y sus títulos en negrita.
+async function crearHoja(accessToken, { nombre, pestana, columnas }) {
   const r = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
     method: "POST",
     headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
     body: JSON.stringify({
-      properties: { title: "Northik · Agenda", locale: "es_CO", timeZone: "America/Bogota" },
+      properties: { title: nombre, locale: "es_CO", timeZone: "America/Bogota" },
       sheets: [{
-        properties: { title: "Citas", gridProperties: { frozenRowCount: 1, columnCount: COLUMNAS.length } },
-        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: COLUMNAS.map((c) => ({
+        properties: { title: pestana, gridProperties: { frozenRowCount: 1, columnCount: columnas.length } },
+        data: [{ startRow: 0, startColumn: 0, rowData: [{ values: columnas.map((c) => ({
           userEnteredValue: { stringValue: c }, userEnteredFormat: { textFormat: { bold: true } },
         })) }] }],
       }],
     }),
   });
   const j = await r.json();
-  if (!r.ok) throw new Error("No se pudo crear la hoja: " + (j.error?.message || r.status));
+  if (!r.ok) throw new Error(`No se pudo crear la hoja «${nombre}»: ` + (j.error?.message || r.status));
   return j.spreadsheetId;
+}
+
+// Revisa que el token pueda leer las horas ocupadas de cada calendario (no muestra ningún evento).
+async function revisarCalendarios(accessToken, ids) {
+  const ahora = new Date();
+  const r = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
+    body: JSON.stringify({ timeMin: ahora.toISOString(), timeMax: new Date(+ahora + 7 * 864e5).toISOString(),
+      items: ids.map((id) => ({ id })) }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error("No se pudieron revisar los calendarios: " + (j.error?.message || r.status));
+  ids.forEach((id, i) => {
+    const errores = j.calendars?.[id]?.errors;
+    const nombre = i === 0 ? "calendario de citas" : id === "primary" ? "calendario principal" : `calendario ${i + 1}`;
+    console.log(errores?.length ? `✗ ${nombre}: sin acceso (${errores.map((e) => e.reason).join(", ")})` : `✓ ${nombre}: se pueden leer las horas ocupadas`);
+  });
 }
 
 const config = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
@@ -107,17 +127,21 @@ const servidor = http.createServer(async (req, res) => {
     if (!(j.scope || "").includes("spreadsheets") || !(j.scope || "").includes("calendar.events")) {
       throw new Error("Falta algún permiso. Vuelve a correr el script y marca todas las casillas en Google.");
     }
-    const actual = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
-    if (/"AGENDA_SHEET_ID":\s*""/.test(actual)) {
-      const id = await crearHoja(j.access_token);
-      fs.writeFileSync(new URL("../wrangler.jsonc", import.meta.url),
-        actual.replace(/"AGENDA_SHEET_ID":\s*""/, `"AGENDA_SHEET_ID": "${id}"`));
-      console.log("Hoja «Northik · Agenda» creada (privada). Su ID quedó en wrangler.jsonc.");
+    let actual = fs.readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
+    for (const [variable, hoja] of [["AGENDA_SHEET_ID", CONFIG.hoja], ["CREADORES_SHEET_ID", HOJA_CREADORES]]) {
+      const vacio = new RegExp(`"${variable}":\\s*""`);
+      if (!vacio.test(actual)) continue;
+      const id = await crearHoja(j.access_token, hoja);
+      actual = actual.replace(vacio, `"${variable}": "${id}"`);
+      fs.writeFileSync(new URL("../wrangler.jsonc", import.meta.url), actual);
+      console.log(`Hoja «${hoja.nombre}» creada (privada). Su ID quedó en wrangler.jsonc.`);
     }
+    const calendarios = ((actual.match(/"AGENDA_CALENDARIOS":\s*"([^"]*)"/) || [])[1] || "primary").split(",").map((c) => c.trim()).filter(Boolean);
+    await revisarCalendarios(j.access_token, calendarios);
     console.log("Guardando secretos en Cloudflare…");
-    await guardarSecreto("GOOGLE_CLIENT_SECRET", clientSecret);
-    await guardarSecreto("GOOGLE_REFRESH_TOKEN", j.refresh_token);
-    console.log("Hecho. La agenda ya puede leer y crear eventos en el calendario.");
+    await guardarSecreto("GOOGLE_NK_CLIENT_SECRET", clientSecret);
+    await guardarSecreto("GOOGLE_NK_REFRESH_TOKEN", j.refresh_token);
+    console.log("Hecho. Los secretos nuevos quedaron en Cloudflare; la web publicada los usa cuando esta rama llegue a main.");
   } catch (e) {
     console.error(e.message);
     process.exitCode = 1;

@@ -9,15 +9,9 @@ import { PAISES } from "../agenda/paises.js";
 import { agregarFila, leerFilas, borrarFilas, crearHoja, asegurarTitulo } from "./google.js";
 import { avisoInterno } from "./aviso.js";
 import { VERSION_DOCUMENTOS } from "./documentos.js";
+import { HOJA_CREADORES } from "./hoja-creadores.js";
 
-export const HOJA_CREADORES = {
-  nombre: "Northik · Creadores",
-  pestana: "Registros",
-  columnas: ["Fecha de registro", "Nombre", "Instagram", "TikTok", "Ciudad", "Nicho", "Tarifa por publicación",
-    "Correo", "WhatsApp", "Red de las cifras", "Seguidores", "Vistas promedio por reel o video",
-    "Interacciones promedio por publicación", "Mayor de 18", "Autoriza tratamiento de datos",
-    "Versión de la política", "Origen", "Pantallazos", "ID del registro", "País de residencia"],
-};
+export { HOJA_CREADORES };
 const CONSERVACION_MESES = 24;
 const MEDIO = "Registro de creadores northik.ai/creadores";
 const URL_DATOS = "https://northik.ai/datos/";

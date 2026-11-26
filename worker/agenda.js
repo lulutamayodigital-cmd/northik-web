@@ -16,6 +16,13 @@ import { nuevoIdEvento, hayFirma, enlaceCita, verificar } from "./enlace-cita.js
 import { avisoInterno } from "./aviso.js";
 import { PAISES } from "../agenda/paises.js";
 
+
+// Calendarios (AGENDA_CALENDARIOS en wrangler.jsonc, separados por coma): el primero recibe las citas;
+// las horas ocupadas se revisan en todos.
+const calendarios = (env) => String(env.AGENDA_CALENDARIOS || "primary").split(",").map((c) => c.trim()).filter(Boolean);
+const calendarioCitas = (env) => calendarios(env)[0];
+const WHATSAPP_PREGUNTAS = "https://wa.me/573054670254";
+
 const MSG_OCUPADA = "Esa hora se acaba de ocupar. Elige otra.";
 const MSG_ERROR = "No pudimos agendar la llamada. Intenta de nuevo o escríbenos por WhatsApp.";
 const MSG_CITA_ERROR = "No pudimos guardar el cambio. Intenta de nuevo o escríbenos por WhatsApp.";
@@ -110,8 +117,8 @@ export async function borrarAgendaVencida(env, ahora = new Date()) {
   }
 
   try {
-    const eventos = await eventosAgendaHasta(env, CONFIG.calendarioId, limite);
-    for (const ev of eventos) { await borrarEvento(env, CONFIG.calendarioId, ev.id); resumen.eventos++; }
+    const eventos = await eventosAgendaHasta(env, calendarioCitas(env), limite);
+    for (const ev of eventos) { await borrarEvento(env, calendarioCitas(env), ev.id); resumen.eventos++; }
   } catch (e) {
     resumen.errores.push("calendario: " + String((e && e.message) || e).slice(0, 300));
   }
@@ -130,7 +137,7 @@ export async function borrarAgendaVencida(env, ahora = new Date()) {
 async function _horarios(env, json) {
   const posibles = citasPosibles(CONFIG);
   if (!posibles.length) return json({ ok: true, dias: [] });
-  const ocupados = await horasOcupadas(env, CONFIG.calendarioId, posibles[0].inicio, posibles.at(-1).fin);
+  const ocupados = await horasOcupadas(env, calendarios(env), posibles[0].inicio, posibles.at(-1).fin);
   return json({ ok: true, dias: agruparPorDia(posibles, ocupados) });
 }
 
@@ -165,18 +172,20 @@ async function _reservar(request, env, ctx, json) {
   if (!cita) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
 
   // …y seguir libre en el calendario justo ahora.
-  const ocupados = await horasOcupadas(env, CONFIG.calendarioId, cita.inicio, cita.fin);
+  const ocupados = await horasOcupadas(env, calendarios(env), cita.inicio, cita.fin);
   if (seCruza(cita, ocupados)) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
 
   // ID propio del evento: así el enlace para cambiar o cancelar va desde el principio en la invitación.
   // Si todavía no existe el secreto AGENDA_FIRMA, la cita se crea igual, sin enlace.
   const idEvento = nuevoIdEvento();
   const enlace = hayFirma(env) ? await enlaceCita(env, new URL(request.url).origin, idEvento) : "";
-  const evento = await crearEvento(env, CONFIG.calendarioId, {
+  const evento = await crearEvento(env, calendarioCitas(env), {
     id: idEvento,
     summary: `Llamada Northik · ${datos.nombre}`,
     description: [
-      ...(enlace ? [`Para cambiar la hora o cancelar: ${enlace}`, ""] : []),
+      ...(enlace ? [`Para cambiar la hora o cancelar: ${enlace}`] : []),
+      `¿Preguntas antes de la llamada? Escríbenos a hola@northik.ai o por WhatsApp: ${WHATSAPP_PREGUNTAS}`,
+      "",
       `WhatsApp: ${datos.whatsapp}`,
       `Qué quiere lograr: ${datos.objetivo}`,
       `Más detalles: ${datos.detalle || "—"}`,
@@ -252,7 +261,7 @@ async function _cita(request, env, ctx, json) {
   const idEvento = await verificar(env, body.codigo);
   if (!idEvento) return json({ ok: false, estado: "invalido" }, 400);
 
-  const ev = await obtenerEvento(env, CONFIG.calendarioId, idEvento);
+  const ev = await obtenerEvento(env, calendarioCitas(env), idEvento);
   const estado = estadoDe(ev);
   if (estado === "invalido") return json({ ok: false, estado }, 400);
   if (estado !== "activa") return json({ ok: body.accion === "ver", estado });
@@ -264,7 +273,7 @@ async function _cita(request, env, ctx, json) {
   const datosPersona = [`Correo: ${persona.correo}`, `WhatsApp: ${persona.whatsapp}`];
 
   if (body.accion === "cancelar") {
-    await cancelarEvento(env, CONFIG.calendarioId, idEvento);
+    await cancelarEvento(env, calendarioCitas(env), idEvento);
     const tarea = registrarCambio(env, idEvento, { [COL.estado]: "Cancelada" },
       `Agenda: ${persona.nombre} canceló su llamada`,
       [`${persona.nombre} canceló su llamada del ${antes.dia} a las ${antes.hora}.`, "La hora quedó libre en la agenda.", "", ...datosPersona]);
@@ -276,10 +285,10 @@ async function _cita(request, env, ctx, json) {
   if (typeof body.inicio !== "string") return json({ ok: false, error: MSG_CITA_ERROR }, 400);
   const nueva = citasPosibles(CONFIG).find((c) => c.inicio.getTime() === Date.parse(body.inicio));
   if (!nueva) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
-  const ocupados = await horasOcupadas(env, CONFIG.calendarioId, nueva.inicio, nueva.fin);
+  const ocupados = await horasOcupadas(env, calendarios(env), nueva.inicio, nueva.fin);
   if (seCruza(nueva, ocupados)) return json({ ok: false, ocupada: true, error: MSG_OCUPADA }, 409);
 
-  await moverEvento(env, CONFIG.calendarioId, idEvento, nueva.inicio, nueva.fin, CONFIG.zonaHoraria);
+  await moverEvento(env, calendarioCitas(env), idEvento, nueva.inicio, nueva.fin, CONFIG.zonaHoraria);
   const despues = etiquetaFecha(nueva.inicio);
   const tarea = registrarCambio(env, idEvento,
     { [COL.fecha]: nueva.fecha, [COL.hora]: despues.hora, [COL.estado]: "Reprogramada" },

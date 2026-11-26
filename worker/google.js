@@ -1,6 +1,6 @@
 // Llamadas a Google Calendar y Google Sheets. Solo se ejecutan en el servidor.
-// Secretos (variables de entorno de Cloudflare): GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN.
-// Variables: GOOGLE_CLIENT_ID, AGENDA_SHEET_ID.
+// Secretos (variables de entorno de Cloudflare): GOOGLE_NK_CLIENT_SECRET, GOOGLE_NK_REFRESH_TOKEN.
+// Variables: GOOGLE_CLIENT_ID, AGENDA_CALENDARIOS, AGENDA_SHEET_ID, CREADORES_SHEET_ID.
 // Permisos del token: calendar.events, calendar.freebusy y spreadsheets (sin acceso al resto del Drive).
 
 let tokenEnCache = null; // { valor, vence }
@@ -12,8 +12,8 @@ async function accessToken(env) {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       client_id: env.GOOGLE_CLIENT_ID,
-      client_secret: env.GOOGLE_CLIENT_SECRET,
-      refresh_token: env.GOOGLE_REFRESH_TOKEN,
+      client_secret: env.GOOGLE_NK_CLIENT_SECRET,
+      refresh_token: env.GOOGLE_NK_REFRESH_TOKEN,
       grant_type: 'refresh_token',
     }),
   });
@@ -45,16 +45,22 @@ export const MARCA_AGENDA = { clave: 'creadoPor', valor: 'northik-agenda' };
 
 // ---------- Calendar ----------
 
-// Horas ocupadas entre dos instantes: [{ start, end }]
-export async function horasOcupadas(env, calendarioId, desde, hasta) {
+// Horas ocupadas entre dos instantes, juntando varios calendarios: [{ start, end }]
+export async function horasOcupadas(env, calendarios, desde, hasta) {
   if (env.GOOGLE_MOCK) return simulado.ocupados(desde, hasta);
+  const ids = [].concat(calendarios);
   const j = await llamar(env, `${CAL}/freeBusy`, {
     method: 'POST',
-    body: JSON.stringify({ timeMin: desde.toISOString(), timeMax: hasta.toISOString(), items: [{ id: calendarioId }] }),
+    body: JSON.stringify({ timeMin: desde.toISOString(), timeMax: hasta.toISOString(), items: ids.map((id) => ({ id })) }),
   });
-  const cal = j.calendars?.[calendarioId];
-  if (cal?.errors?.length) throw new Error(`freebusy ${JSON.stringify(cal.errors)}`);
-  return cal?.busy || [];
+  const ocupados = [];
+  for (const id of ids) {
+    const cal = j.calendars?.[id];
+    // Si Google no puede leer un calendario, mejor no ofrecer horas que podrían estar ocupadas.
+    if (!cal || cal.errors?.length) throw new Error(`freebusy ${id === 'primary' ? 'primary' : 'calendario de citas'} ${JSON.stringify(cal?.errors || 'sin respuesta')}`);
+    ocupados.push(...(cal.busy || []));
+  }
+  return ocupados;
 }
 
 export async function crearEvento(env, calendarioId, evento) {

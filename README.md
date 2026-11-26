@@ -29,13 +29,9 @@ Dominios: `northik.ai`, `www.northik.ai` y `northik.co` (redirige a northik.ai),
 ## Agenda (`/agenda/`)
 
 - Reglas de disponibilidad (horarios, duración, anticipación, festivos y días sin citas propios en `diasSinCitas`): `worker/agenda-config.js`. Cada cambio se publica al llegar a `main`.
-- Secretos en Cloudflare, nunca en el repositorio:
-  ```bash
-  npx wrangler secret put GOOGLE_CLIENT_SECRET
-  npx wrangler secret put GOOGLE_REFRESH_TOKEN
-  ```
-  El ID de cliente (`GOOGLE_CLIENT_ID`) va en `vars` de `wrangler.jsonc` porque no es secreto.
-- Para obtener el refresh token (una sola vez): `node scripts/token-google.mjs`. Qué cuenta usar y el paso a paso están en la documentación privada de Northik Match.
+- Calendarios en `AGENDA_CALENDARIOS` (`wrangler.jsonc`), separados por coma: el primero recibe las citas y en todos se revisan las horas ocupadas.
+- Secretos en Cloudflare, nunca en el repositorio: `GOOGLE_NK_CLIENT_SECRET` y `GOOGLE_NK_REFRESH_TOKEN`. Los guarda el script del token. El ID de cliente (`GOOGLE_CLIENT_ID`) va en `vars` de `wrangler.jsonc` porque no es secreto.
+- Para obtener el refresh token (una sola vez): `node scripts/token-google.mjs`. Si `AGENDA_SHEET_ID` o `CREADORES_SHEET_ID` están vacíos, el script crea esas hojas privadas y anota su ID. Al final revisa el acceso a los calendarios. Qué cuenta usar y el paso a paso están en la documentación privada de Northik Match.
 - Cada reserva crea el evento en Google Calendar (con la marca privada `creadoPor=northik-agenda`) y agrega una fila a la hoja privada «Northik · Agenda», pestaña «Citas» (ID en `AGENDA_SHEET_ID`). Si la hoja falla, la cita igual se crea y llega un aviso al correo de avisos.
 - El cron mensual (día 1) borra las filas y los eventos marcados de /agenda con más de 24 meses.
 - En Google Cloud deben estar activas las APIs de Calendar y Sheets. Permisos del token: `calendar.events`, `calendar.freebusy` y `spreadsheets`.

@@ -2,8 +2,8 @@
 // Cambia aquí los horarios; no hace falta tocar nada más.
 
 export const CONFIG = {
-  // Calendario donde se leen las horas ocupadas y se crean las citas.
-  calendarioId: 'primary', // el calendario principal de la cuenta de Google conectada (ver documentación privada)
+  // Los calendarios van en AGENDA_CALENDARIOS (wrangler.jsonc): el primero recibe las citas
+  // y en todos se revisan las horas ocupadas.
 
   zonaHoraria: 'America/Bogota',
 
